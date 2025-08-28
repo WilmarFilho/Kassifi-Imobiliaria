@@ -1,9 +1,13 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 
-const prisma = new PrismaClient();
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+const prisma = global.prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,30 +19,30 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
+        const email = credentials?.email?.trim();
+        const password = credentials?.password;
 
-        console.log("Authorize called");
-        console.log(credentials);
-        if (!credentials?.email || !credentials.password) return null;
+        if (!email || !password) return null;
 
+        try {
+          const user = await prisma.usuario.findUnique({
+            where: { email }
+          });
 
+          if (!user) return null;
 
-        // Busca o usuário no banco pelo email
-        const user = await prisma.usuario.findUnique({
-          where: { email: credentials.email }
-        });
+          // Em produção, compare hashes (e.g. bcrypt.compare)
+          if (password !== user.senha) return null;
 
-        if (!user) return null;
-
-        // Verifica senha 
-        const isValid = credentials.password === user.senha;
-        if (!isValid) return null;
-
-        // Retorna objeto do usuário para a sessão
-        return {
-          id: user.id,
-          name: user.nome,
-          email: user.email
-        };
+          return {
+            id: user.id,
+            name: user.nome,
+            email: user.email
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
+        }
       }
     })
   ],
@@ -51,5 +55,3 @@ export const authOptions: NextAuthOptions = {
 };
 
 export default NextAuth(authOptions);
-
-
