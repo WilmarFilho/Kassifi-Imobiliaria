@@ -3,7 +3,7 @@ import Image from "next/image";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import styles from "./styles/Login.module.css";
+import styles from "../styles/Login.module.css";
 
 // Página de login
 export default function Login() {
@@ -101,3 +101,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return { props: {} };
 };
+
+
