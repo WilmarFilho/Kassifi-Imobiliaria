@@ -1,0 +1,45 @@
+.footer {
+  
+  display: flex;
+  flex-direction: column;
+}
+
+.topSection,
+.bottomSection {
+  display: flex;
+}
+
+.topSection {
+  padding: 1rem 7rem;
+  color: #FFF;
+  background: rgba(0, 90, 170, 1);
+}
+
+.columnTopSection {
+  display: flex;
+  gap: 80px;
+  align-items: center;
+  width: 75%;
+}
+
+.columnSmallTopSection {
+  width: 25%;
+  align-items: center;
+  display: flex;
+}
+
+.columnTopSection div ul {
+  list-style: none;
+}
+
+.bottomSection {
+  color: rgba(0, 90, 170, 1);
+  display: flex;
+  justify-content: space-between;
+  padding: 1.6rem 7rem;
+}
+
+.bottomSection  a{
+  color: rgba(0, 90, 170, 1);
+  text-decoration: none;
+}

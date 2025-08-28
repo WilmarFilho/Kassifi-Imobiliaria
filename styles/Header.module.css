@@ -1,0 +1,103 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 6rem;
+  background-color: #fff;
+}
+
+.nav a,
+.nav :where(a) {
+  margin-left: 1.5rem;
+  padding: 12px 30px;
+  color: #005AAA;
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 480;
+  transition: .3s;
+}
+
+.nav a:hover {
+  background-color: rgba(0, 90, 170, 0.30);
+}
+
+/* estado persistente (rota atual) */
+.nav a.active,
+.nav a[aria-current="page"] {
+  text-decoration: none;
+  background-color: rgba(0, 90, 170, 0.25);
+}
+
+.buttonHeader {
+  border-radius: 12px;
+  padding: 12px 20px;
+  background-color: transparent;
+  border: 1px solid rgba(0, 90, 170, 0.25);
+  transition: .3s;
+  cursor: pointer;
+}
+
+.buttonHeader:hover {
+  background-color: rgba(0, 90, 170, 0.30);
+}
+
+.buttonHeader a {
+  color: #005AAA;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* Variante White */
+.headerVariant {
+  background: rgba(0, 90, 170, 1);
+  color: #fff;
+}
+
+/* nav dentro da variante */
+.headerVariant .nav a,
+.headerVariant .nav :where(a) {
+  margin-left: 1.5rem;
+  padding: 12px 30px;
+  color: #FFF;
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 480;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.12s ease;
+  background: transparent;
+}
+
+/* hover e foco */
+.headerVariant .nav a:hover,
+.headerVariant .nav a:focus {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* estado persistente (rota atual) na variante */
+.headerVariant .nav a.active,
+.headerVariant .nav a[aria-current="page"] {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* botão do header na variante */
+.headerVariant .buttonHeader {
+  border-radius: 12px;
+  padding: 10px 18px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e6f0ff;
+  transition: background-color 0.18s ease, transform 0.12s ease;
+}
+
+.headerVariant .buttonHeader:hover {
+  background-color: rgba(255, 255, 255, 0.10);
+  transform: translateY(-1px);
+}
+
+/* link interno do botão herda cor na variante */
+.headerVariant .buttonHeader a {
+  color: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+}

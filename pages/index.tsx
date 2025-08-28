@@ -1,8 +1,15 @@
-export default function Home() {
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import styles from "../styles/Index.module.css";
+
+export default function HomePage() {
   return (
-    <div>
-      <h1>Bem-vindo à Imobiliária</h1>
-      <p>Veja nossos imóveis disponíveis.</p>
-    </div>
-  )
+    <>
+      <Header variant={false}/>
+      <main className={styles.main}>
+        <h1>Bem-vindo ao site</h1>
+      </main>
+      <Footer />
+    </>
+  );
 }

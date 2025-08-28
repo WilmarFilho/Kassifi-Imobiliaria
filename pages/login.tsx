@@ -44,7 +44,7 @@ export default function Login() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.logoContainer}>
-          <Image src="/assets/logo.svg" alt="Logo" width={120} height={120} />
+          <Image src="/assets/logo.svg" alt="Logo" width={210} height={120} />
         </div>
 
         <p className={styles.subtitle}>Faça login para acessar o dashboard</p>

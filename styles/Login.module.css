@@ -60,15 +60,14 @@
   width:100%;
   box-sizing:border-box;
   padding:.9rem 1rem;
-  border:1px solid var(--input-border);
+  border: none;
   border-radius:.5rem;
   outline:none;
   transition:box-shadow .2s ease, border-color .2s ease;
 }
 
 .input:focus{
-  border-color:transparent;
-  box-shadow:0 0 0 4px var(--focus-ring);
+  box-shadow:0 0 0 1px var(--focus-ring);
 }
 
 .button{
