@@ -1,6 +1,20 @@
+:root{
+  --bg-start: rgba(96,165,250,.78);
+  --bg-end: rgba(37,100,235,.66);
+  --card-bg: #fcfcfc;
+  --text-muted: #4b5563;
+  --text-strong: #374151;
+  --error: #ef4444;
+  --input-border: rgba(209,213,219,.64);
+  --focus-ring: rgba(59,131,246,.42);
+  --button-bg: #3b82f6;
+  --button-hover: #2563eb;
+  --white: #ffffff;
+}
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 html {
     font-family: Poppins, sans-serif;

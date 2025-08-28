@@ -1,10 +1,16 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]"; // ajuste o caminho se necessário
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    return res.status(401).json({ error: "Não autorizado" });
+  }
+
   try {
     if (req.method === "GET") {
-      console.log('oi')
       const imoveis = await prisma.imovel.findMany({
         include: {
           tags: { include: { tag: true } },
@@ -18,7 +24,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
       const data = req.body;
 
-      // Converter strings numéricas para números
       const parsedData = {
         ...data,
         valor: Number(data.valor),
@@ -26,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         banheiros: Number(data.banheiros || 0),
         vagas: Number(data.vagas || 0),
         metrosQuadrados: Number(data.metrosQuadrados || 0),
-        lancamento: data.lancamento ? Boolean(data.lancamento) : false
+        lancamento: Boolean(data.lancamento),
       };
 
       const imovel = await prisma.imovel.create({
@@ -50,12 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(405).json({ error: "Método não permitido" });
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Erro API /imoveis:", error);
-      return res.status(500).json({ error: "Erro no servidor", details: error.message });
-    } else {
-      console.error("Erro API /imoveis:", error);
-      return res.status(500).json({ error: "Erro no servidor", details: String(error) });
-    }
+    console.error("Erro API /imoveis:", error);
+    return res.status(500).json({ error: "Erro no servidor", details: error instanceof Error ? error.message : String(error) });
   }
 }
