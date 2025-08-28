@@ -1,0 +1,25 @@
+.bannerSobre {
+    width: 100%;
+}
+
+.mainSobre {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+    padding: 6rem 0;
+}
+
+.textSobreWrapper {
+    padding: 0 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    text-wrap: balance;
+    line-height: 40px;
+}
+
+.contentSobre {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}

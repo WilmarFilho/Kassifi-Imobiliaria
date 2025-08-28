@@ -4,6 +4,7 @@
   align-items: center;
   padding: 1rem 6rem;
   background-color: #fff;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.08);
 }
 
 .nav a,
