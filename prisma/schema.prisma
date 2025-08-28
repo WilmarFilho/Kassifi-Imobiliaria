@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  criadoEm  DateTime @default(now())
+}
+
+model Imovel {
+  id              String      @id @default(uuid())
+  tipo            String
+  nome            String
+  lancamento      Boolean
+  valor           Float
+  cidade          String
+  estado          String
+  endereco        String
+  quartos         Int
+  banheiros       Int
+  vagas           Int
+  metrosQuadrados Int
+  descricao       String
+  criadoEm        DateTime    @default(now())
+  tags            ImovelTag[]
+  midias          Midia[]
+}
+
+model Tag {
+  id      String      @id @default(uuid())
+  nome    String      @unique
+  imoveis ImovelTag[]
+}
+
+model ImovelTag {
+  id       String @id @default(uuid())
+  imovel   Imovel @relation(fields: [imovelId], references: [id])
+  imovelId String
+  tag      Tag    @relation(fields: [tagId], references: [id])
+  tagId    String
+
+  @@unique([imovelId, tagId])
+}
+
+model Midia {
+  id       String @id @default(uuid())
+  tipo     String // "foto" ou "video"
+  url      String
+  imovel   Imovel @relation(fields: [imovelId], references: [id])
+  imovelId String
+  criadoEm DateTime @default(now())
+}
