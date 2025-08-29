@@ -1,95 +1,248 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import type { Filtros } from "@/types/imovel";
 import styles from "./Filtro.module.css";
 
-export type Filtros = {
-  endereco?: string;
-  empreendimento?: string;
-  cidade?: string;
-  valorMin?: number;
-  valorMax?: number;
-  quartos?: number;
-  suites?: number;
-  tamanho?: number;
-};
-
 type Props = {
-  onFilter: (filtros: Filtros) => void;
+  onFilterChange: (filtros: Filtros) => void;
 };
 
-const FiltroImoveis: React.FC<Props> = ({ onFilter }) => {
+const TAGS_DISPONIVEIS = [
+  "Piscina",
+  "Churrasqueira",
+  "Academia",
+  "Varanda",
+  "Garagem",
+  "Elevador",
+  "Lareira",
+  "Quintal",
+  "Vista Mar",
+  "Portaria 24h"
+];
+
+export default function FiltroImoveis({ onFilterChange }: Props) {
   const [filtros, setFiltros] = useState<Filtros>({
-    valorMin: 0,
-    valorMax: 5000000,
+    valorMin: undefined,
+    valorMax: undefined,
+    metrosMin: undefined,
+    metrosMax: undefined,
+    tags: []
   });
 
-  // Usamos useEffect para chamar onFilter sempre que os filtros mudarem
   useEffect(() => {
-    onFilter(filtros);
-  }, [filtros, onFilter]); // onFilter é uma dependência para garantir que a função seja a mais recente
+    onFilterChange(filtros);
+  }, [filtros, onFilterChange]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFiltros((prevFiltros) => ({
-      ...prevFiltros,
-      [name]: value,
-    }));
-  };
+  function setField<K extends keyof Filtros>(field: K, value: Filtros[K]) {
+    setFiltros(prev => ({ ...prev, [field]: value }));
+  }
 
-  const limparFiltros = () => {
-    setFiltros({ valorMin: 0, valorMax: 5000000 });
-    // onFilter será chamado automaticamente pelo useEffect após a atualização de filtros
-  };
+  function toggleTag(tag: string) {
+    setFiltros(prev => {
+      const tags = prev.tags ?? [];
+      const exists = tags.some(t => t.toLowerCase() === tag.toLowerCase());
+      return {
+        ...prev,
+        tags: exists ? tags.filter(t => t.toLowerCase() !== tag.toLowerCase()) : [...tags, tag]
+      };
+    });
+  }
+
+  function limpar() {
+    setFiltros({
+      tipo: undefined,
+      nome: undefined,
+      endereco: undefined,
+      cidade: undefined,
+      estado: undefined,
+      valorMin: undefined,
+      valorMax: undefined,
+      quartos: undefined,
+      banheiros: undefined,
+      vagas: undefined,
+      metrosMin: undefined,
+      metrosMax: undefined,
+      lancamento: undefined,
+      tags: []
+    });
+  }
 
   return (
     <aside className={styles.sidebar}>
       <h3 className={styles.title}>Filtros</h3>
-      <input
-        name="endereco"
-        placeholder="Código, bairro ou endereço"
-        value={filtros.endereco || ""}
-        onChange={handleChange}
-        className={styles.input}
-      />
-      <select name="empreendimento" onChange={handleChange} value={filtros.empreendimento || ""}>
-        <option value="">Empreendimento</option>
-        <option value="Opus Zoom">Opus Zoom</option>
-        <option value="Infinity">Infinity</option>
-      </select>
-      <select name="cidade" onChange={handleChange} value={filtros.cidade || ""}>
-        <option value="">Selecione a cidade</option>
-        <option value="Goiânia">Goiânia</option>
-        <option value="Aparecida">Aparecida</option>
-      </select>
-      <label className={styles.label}>Valor até</label>
-      <input
-        type="range"
-        min="0"
-        max="5000000"
-        step="100000"
-        name="valorMax"
-        value={filtros.valorMax}
-        onChange={handleChange}
-      />
-      <span className={styles.rangeValue}>R$ {Number(filtros.valorMax).toLocaleString()}</span>
-      <select name="quartos" onChange={handleChange} value={filtros.quartos || ""}>
-        <option value="">Quartos</option>
-        <option value="2">2 quartos</option>
-        <option value="3">3 quartos</option>
-        <option value="4">4 quartos</option>
-      </select>
-      <select name="suites" onChange={handleChange} value={filtros.suites || ""}>
-        <option value="">Suítes</option>
-        <option value="1">1 suíte</option>
-        <option value="2">2 suítes</option>
-        <option value="3">3 suítes</option>
-      </select>
-      <div className={styles.buttons}>
-        <button onClick={limparFiltros} className={styles.clearBtn}>
+
+      <label className={styles.field}>
+        <select
+          className={styles.input}
+          value={filtros.tipo ?? ""}
+          onChange={e => setField("tipo", e.target.value || undefined)}
+        >
+          <option value="">Tipo de Imóvel</option>
+          <option value="Apartamento">Apartamento</option>
+          <option value="Casa">Casa</option>
+          <option value="Sala Comercial">Sala Comercial</option>
+
+        </select>
+      </label>
+
+      <label className={styles.field}>
+        Título / Nome
+        <input
+          className={styles.input}
+          placeholder="Ex: Residencial Bela Vista"
+          value={filtros.nome ?? ""}
+          onChange={e => setField("nome", e.target.value || undefined)}
+        />
+      </label>
+
+      <label className={styles.field}>
+        Endereço / Bairro
+        <input
+          className={styles.input}
+          placeholder="Rua, bairro..."
+          value={filtros.endereco ?? ""}
+          onChange={e => setField("endereco", e.target.value || undefined)}
+        />
+      </label>
+
+      <label className={styles.field}>
+        Cidade
+        <input
+          className={styles.input}
+          value={filtros.cidade ?? ""}
+          onChange={e => setField("cidade", e.target.value || undefined)}
+          placeholder="Cidade"
+        />
+      </label>
+
+      <label className={styles.field}>
+        Estado (UF)
+        <input
+          className={styles.input}
+          value={filtros.estado ?? ""}
+          onChange={e => setField("estado", e.target.value || undefined)}
+          placeholder="SP, GO..."
+        />
+      </label>
+
+      <label className={styles.field}>
+        Valor mínimo
+        <input
+          className={styles.input}
+          type="number"
+          value={filtros.valorMin ?? ""}
+          onChange={e =>
+            setField("valorMin", e.target.value === "" ? undefined : Number(e.target.value))
+          }
+        />
+      </label>
+
+      <label className={styles.field}>
+        Valor máximo
+        <input
+          className={styles.input}
+          type="number"
+          value={filtros.valorMax ?? ""}
+          onChange={e =>
+            setField("valorMax", e.target.value === "" ? undefined : Number(e.target.value))
+          }
+        />
+      </label>
+
+      <label className={styles.field}>
+        Quartos (mín)
+        <input
+          className={styles.input}
+          type="number"
+          min={0}
+          value={filtros.quartos ?? ""}
+          onChange={e =>
+            setField("quartos", e.target.value === "" ? undefined : Number(e.target.value))
+          }
+        />
+      </label>
+
+      <label className={styles.field}>
+        Banheiros (mín)
+        <input
+          className={styles.input}
+          type="number"
+          min={0}
+          value={filtros.banheiros ?? ""}
+          onChange={e =>
+            setField("banheiros", e.target.value === "" ? undefined : Number(e.target.value))
+          }
+        />
+      </label>
+
+      <label className={styles.field}>
+        Vagas (mín)
+        <input
+          className={styles.input}
+          type="number"
+          min={0}
+          value={filtros.vagas ?? ""}
+          onChange={e =>
+            setField("vagas", e.target.value === "" ? undefined : Number(e.target.value))
+          }
+        />
+      </label>
+
+      <label className={styles.field}>
+        Mín m²
+        <input
+          className={styles.input}
+          type="number"
+          value={filtros.metrosMin ?? ""}
+          onChange={e =>
+            setField("metrosMin", e.target.value === "" ? undefined : Number(e.target.value))
+          }
+        />
+      </label>
+
+      <label className={styles.field}>
+        Máx m²
+        <input
+          className={styles.input}
+          type="number"
+          value={filtros.metrosMax ?? ""}
+          onChange={e =>
+            setField("metrosMax", e.target.value === "" ? undefined : Number(e.target.value))
+          }
+        />
+      </label>
+
+      <label className={styles.checkbox}>
+        <input
+          type="checkbox"
+          checked={filtros.lancamento === true}
+          onChange={e => setField("lancamento", e.target.checked ? true : undefined)}
+        />
+        Apenas lançamentos
+      </label>
+
+      <div className={styles.tagsBox}>
+        <p className={styles.tagsTitle}>Comodidades / Tags</p>
+        <div className={styles.tagsGrid}>
+          {TAGS_DISPONIVEIS.map(tag => {
+            const checked = (filtros.tags ?? []).some(
+              t => t.toLowerCase() === tag.toLowerCase()
+            );
+            return (
+              <label key={tag} className={styles.tagLabel}>
+                <input type="checkbox" checked={checked} onChange={() => toggleTag(tag)} />
+                <span>{tag}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={styles.actions}>
+        <button type="button" onClick={limpar} className={styles.clearBtn}>
           Limpar filtros
         </button>
+    
       </div>
     </aside>
   );
-};
-
-export default FiltroImoveis;
+}
