@@ -1,0 +1,94 @@
+/* Sidebar de filtros */
+.sidebar {
+  background: #ffffff;
+  width: 350px;
+  border: 1px solid #e6eef4;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(13, 40, 77, 0.04);
+  font-family: Poppins, sans-serif  ;
+}
+
+/* Título "Filtros" */
+.title {
+  color: #0b5db8;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* Inputs / selects */
+.input
+ {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d6e1ea;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #122028;
+  outline: none;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.input:focus,
+select:focus {
+  border-color: #0b5db8;
+  box-shadow: 0 4px 12px rgba(11,93,184,0.08);
+}
+
+/* Label do range */
+.label {
+  display: block;
+  font-size: 0.85rem;
+  color: #374151;
+  margin: 8px 0 6px;
+}
+
+
+/* Exibição do valor do range */
+.rangeValue {
+  font-size: 0.85rem;
+  color: #475569;
+  margin-bottom: 10px;
+}
+
+/* Botões de ação */
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Botão limpar */
+.clearBtn {
+  flex: 1;
+  background: transparent;
+  color: #0b5db8;
+  border: 1px solid #d6e1ea;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Botão aplicar */
+.applyBtn {
+  flex: 1;
+  background: #0b5db8;
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(11,93,184,0.12);
+}
+
+.clearBtn:hover {
+  background: #f6fbff;
+}
+.applyBtn:hover {
+  background: #094f9c;
+}

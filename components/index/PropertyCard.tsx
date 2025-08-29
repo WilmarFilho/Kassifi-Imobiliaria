@@ -3,18 +3,19 @@ import styles from "./PropertyCard.module.css";
 
 interface PropertyCardProps {
     image: string;
-    price: string;
+    price: string | number;
     title: string;
     location: string;
     quartos: number;
     banheiros: number;
     area: string;
     id?: string;
+    busca?: boolean;
 }
 
-export default function PropertyCard({ image, price, title, location, quartos, banheiros, area, id }: PropertyCardProps) {
+export default function PropertyCard({ image, price, title, location, quartos, banheiros, area, id, busca = false }: PropertyCardProps) {
     return (
-        <div className={styles.card}>
+        <div className={ busca ? styles.cardBusca : styles.card}>
             <div className={styles.imageWrapper}>
                 <Image src={image} alt={title} width={450} height={50} className={styles.imgImovel}/>
                 <span className={styles.tag}> <Image src='/assets/raio.svg' alt='raio-icon' width={22} height={22} />  Lançamento</span>
