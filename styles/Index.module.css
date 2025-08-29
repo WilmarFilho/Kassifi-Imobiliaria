@@ -1,6 +1,93 @@
 .main {
-    display: flex  ;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 530px;
+}
+
+
+.heroSection {
+    background-image: url('/assets/02.webp');
+    height: 700px;
+    width: 100%;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    color: #FFF;
+    font-weight: 600;
+    font-size: 44px;
+    flex-direction: column;
+    padding: 0 0 2em 9em;
+}
+
+.buscaSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 5rem 6rem 8rem 6rem;
+}
+
+.titleBusca {
+    font-size: 30px;
+    font-weight: 500;
+    color: rgba(24, 26, 32, 1);
+}
+
+.buttonBusca {
+    display: flex;
+    justify-content: end;
+    align-items: end;
+}
+
+.buttonBusca a {
+    color: rgba(113, 113, 113, 1);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.buttonBusca a img {
+    margin-top: 4px;
+}
+
+.textBusca {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.descriptionBusca {
+    font-size: 14px;
+    color: rgba(113, 113, 113, 1);
+    font-weight: 400;
+}
+
+.buscaContent {
+    display: flex;
+    justify-content: space-between;
+}
+
+.infoCardContainer {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.parceirosCardContainer {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    align-items: center;
+}
+
+.partnerLogo {
+  max-width: 150px;
+  width: 100%;
+  height: auto; /* mantém proporção */
+  object-fit: contain;
 }

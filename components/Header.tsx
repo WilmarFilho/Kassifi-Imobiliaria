@@ -41,7 +41,7 @@ export default function Header({ variant = false }: { variant?: boolean }) {
       </nav>
 
       <button className={styles.buttonHeader}>
-        <Link href="/">Fale Conosco</Link>
+        <Link href="/">Fale Conosco <Image src="/assets/arrow.svg" alt="arrow-icon" width={18} height={18} /> </Link>
       </button>
     </header>
   );

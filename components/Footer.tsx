@@ -15,9 +15,9 @@ export default function Footer() {
           </div>
 
          <div className={styles.columnTopSection}>
-            <ul>
-              <li>Av. T-15, 225, Setor Bueno, Goiânia, Goiás (Galeria Séren)</li>
-              <li>(62) 99828-7740</li>
+            <ul className={styles.list}>
+              <li> <Image src="/assets/pin.svg" alt="pin-icon" width={20} height={20} />  Av. T-15, 225, Setor Bueno, Goiânia, Goiás (Galeria Séren)</li>
+              <li> <Image src="/assets/whats.svg" alt="pin-icon" width={18} height={18} /> (62) 99828-7740</li>
             </ul>
           </div>
         </div>

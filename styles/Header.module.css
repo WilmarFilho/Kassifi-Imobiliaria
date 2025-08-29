@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 6rem;
+  padding: 0 6rem;
   background-color: #fff;
   box-shadow: 0 6px 18px rgba(2, 6, 23, 0.08);
 }
@@ -19,19 +19,19 @@
 }
 
 .nav a:hover {
-  background-color: rgba(0, 90, 170, 0.30);
+  background-color: rgba(0, 90, 170, 0.12);
 }
 
 /* estado persistente (rota atual) */
 .nav a.active,
 .nav a[aria-current="page"] {
   text-decoration: none;
-  background-color: rgba(0, 90, 170, 0.25);
+  background-color: rgba(0, 90, 170, 0.12);
 }
 
 .buttonHeader {
   border-radius: 12px;
-  padding: 12px 20px;
+  padding: 12px 28px;
   background-color: transparent;
   border: 1px solid rgba(0, 90, 170, 0.25);
   transition: .3s;
@@ -39,14 +39,23 @@
 }
 
 .buttonHeader:hover {
-  background-color: rgba(0, 90, 170, 0.30);
+  background-color: rgba(0, 90, 170, 0.12);
+  border: 1px solid rgba(0, 90, 170, 0.10);
 }
 
 .buttonHeader a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #005AAA;
   font-size: 16px;
   font-weight: bold;
+  gap: 8px;
   text-decoration: none;
+}
+
+.buttonHeader a img {
+  margin-top: 4px;
 }
 
 /* Variante White */
