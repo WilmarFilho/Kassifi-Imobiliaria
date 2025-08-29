@@ -1,0 +1,22 @@
+.overlay {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    color: #FFF;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.card {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    height: 450px;
+    flex: 1;
+}
+
+.bgImage {
+    height: 100%;
+    width: 100%;
+}

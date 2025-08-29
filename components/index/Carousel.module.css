@@ -1,0 +1,45 @@
+.carouselWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 12px 0;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+}
+.carousel::-webkit-scrollbar {
+  display: none; /* Chrome */
+}
+
+.arrowLeft,
+.arrowRight {
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  background: white;
+  border: none;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  border-radius: 80%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arrowLeft {
+  left: -70px;
+}
+
+.arrowRight {
+  transform: rotate(180deg) ;
+  right: -70px;
+}
+
+

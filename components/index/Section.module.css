@@ -1,0 +1,51 @@
+
+.section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 0 6rem;
+}
+
+.title {
+    font-size: 30px;
+    font-weight: 500;
+    color: rgba(24, 26, 32, 1);
+}
+
+.button {
+    display: flex;
+    justify-content: end;
+    align-items: end;
+}
+
+.button a {
+    color: rgba(113, 113, 113, 1);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.button a img {
+    margin-top: 4px;
+}
+
+.texts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.description {
+    font-size: 14px;
+    color: rgba(113, 113, 113, 1);
+    font-weight: 400;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
