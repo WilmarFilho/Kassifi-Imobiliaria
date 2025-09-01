@@ -420,13 +420,16 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                   onClick={() => capaInputRef.current?.click()}
                 >
                   {capa ? (
-                    <Image
-                      src={capa}
-                      alt="Capa do imóvel"
-                      width={900}
-                      height={400}
-                      className={styles.capaImovel}
-                    />
+                    <>
+                      <Image
+                        src={capa}
+                        alt="Capa do imóvel"
+                        width={900}
+                        height={400}
+                        className={styles.capaImovel}
+                      />
+                      <div className={styles.editCapaButton}> Clique para alterar a capa</div>
+                    </>
                   ) : (
                     <div className={styles.capaPlaceholder}>
                       Clique para selecionar a capa

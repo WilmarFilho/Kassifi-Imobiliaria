@@ -201,6 +201,22 @@
   cursor: pointer;
 }
 
+.editCapaButton {
+  position: absolute;
+  left: 32px;
+  bottom: 32px;
+  background-color: #2563eb;
+  z-index: 999;
+  border-radius: 10px;
+  color: #FFF;
+  cursor: pointer;
+  padding: .8rem 3rem;
+}
+
+.previewCapa {
+  position: relative;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
