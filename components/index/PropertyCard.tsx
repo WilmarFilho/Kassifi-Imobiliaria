@@ -11,14 +11,44 @@ interface PropertyCardProps {
     area: string;
     id?: string;
     busca?: boolean;
+    isAdmin?: boolean;
+    onGoClick?: (id?: string) => void;
+    onDeleteClick?: (id?: string) => void;
 }
 
-export default function PropertyCard({ image, price, title, location, quartos, banheiros, area, id, busca = false }: PropertyCardProps) {
+export default function PropertyCard({
+    image,
+    price,
+    title,
+    location,
+    quartos,
+    banheiros,
+    area,
+    id,
+    busca = false,
+    isAdmin = false,
+    onGoClick,
+    onDeleteClick,
+}: PropertyCardProps) {
     return (
-        <div className={ busca ? styles.cardBusca : styles.card}>
+        <div
+            className={`${busca ? styles.cardBusca : styles.card} ${isAdmin ? styles.admin : ""
+                }`}
+            onClick={() => onGoClick?.(id)}
+        >
+
             <div className={styles.imageWrapper}>
-                <Image src={image} alt={title} width={450} height={50} className={styles.imgImovel}/>
-                <span className={styles.tag}> <Image src='/assets/raio.svg' alt='raio-icon' width={22} height={22} />  Lançamento</span>
+                <Image
+                    src={image}
+                    alt={title}
+                    width={450}
+                    height={50}
+                    className={styles.imgImovel}
+                />
+                <span className={styles.tag}>
+                    <Image src="/assets/raio.svg" alt="raio-icon" width={22} height={22} />
+                    Lançamento
+                </span>
                 <p className={styles.price}>{price}</p>
             </div>
             <div className={styles.info}>
@@ -27,17 +57,45 @@ export default function PropertyCard({ image, price, title, location, quartos, b
                     <p className={styles.location}>{location}</p>
                 </div>
                 <div className={styles.features}>
-                    <p> <Image src='/assets/quarto.svg' alt='quarto-icon' width={22} height={22} />  {quartos} Quartos</p>
-                    <p> <Image src='/assets/banheiro.svg' alt='banheiro-icon' width={22} height={22} />{banheiros} Banheiros</p>
-                    <p> <Image src='/assets/metros.svg' alt='metros-icon' width={22} height={22} />{area}</p>
+                    <p>
+                        <Image src="/assets/quarto.svg" alt="quarto-icon" width={22} height={22} />
+                        {quartos} Quartos
+                    </p>
+                    <p>
+                        <Image src="/assets/banheiro.svg" alt="banheiro-icon" width={22} height={22} />
+                        {banheiros} Banheiros
+                    </p>
+                    <p>
+                        <Image src="/assets/metros.svg" alt="metros-icon" width={22} height={22} />
+                        {area}
+                    </p>
                 </div>
 
                 <div className={styles.footer}>
-                    <p>{id}</p>
+                    <p>{id?.slice(0, 8)}</p>
 
-                    <Image src='/assets/go.svg' alt='go-icon' width={22} height={22} />
+                    <div className={styles.actions}>
+                        <Image
+                            src="/assets/go.svg"
+                            alt="go-icon"
+                            width={22}
+                            height={22}
+                            className={styles.iconButton}
+                            onClick={() => onGoClick?.(id)}
+                        />
+
+                        {isAdmin && (
+                            <Image
+                                src="/assets/trash.svg"
+                                alt="delete-icon"
+                                width={27}
+                                height={27}
+                                className={styles.iconButton}
+                                onClick={() => onDeleteClick?.(id)}
+                            />
+                        )}
+                    </div>
                 </div>
-
             </div>
         </div>
     );

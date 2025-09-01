@@ -4,8 +4,21 @@
     border-radius: 14px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    cursor: pointer;
     width: 450px;
-    flex-shrink: 0; /* Adicione esta linha */
+    flex-shrink: 0;
+    /* Adicione esta linha */
+}
+
+.admin {
+    height: 520px;
+}
+
+.actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    align-items: center;
 }
 
 .cardBusca {
@@ -28,7 +41,7 @@
     gap: 6px;
     position: absolute;
     top: 12px;
-    left:32px;
+    left: 32px;
     font-size: 14px;
     font-weight: 500;
 }
@@ -59,7 +72,7 @@
 .titleLocation {
     display: flex;
     flex-direction: column;
-    gap: 4px;   
+    gap: 4px;
 }
 
 .titleLocation h3 {
@@ -75,7 +88,8 @@
     font-weight: 400;
 }
 
-.features, .features p {
+.features,
+.features p {
     display: flex;
     gap: 8px;
     justify-content: space-between;
@@ -83,7 +97,7 @@
 }
 
 .features {
-    border-bottom:  rgba(233, 233, 233, 1) 1px solid;
+    border-bottom: rgba(233, 233, 233, 1) 1px solid;
     padding-bottom: 16px;
     font-size: 14px;
     color: rgba(24, 26, 32, 1);
@@ -93,7 +107,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-   
+
 }
 
 .imgImovel {

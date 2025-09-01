@@ -22,6 +22,27 @@
   background-color: rgba(0, 90, 170, 0.12);
 }
 
+.adminActions {
+  display: flex;
+  gap: 24px;
+}
+
+.adminActions button {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.adminActions button:hover {
+  background-color: #1d4ed8;
+}
+
 /* estado persistente (rota atual) */
 .nav a.active,
 .nav a[aria-current="page"] {

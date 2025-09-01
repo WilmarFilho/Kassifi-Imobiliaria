@@ -1,11 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../../styles/Dashboard.module.css";
 import { getSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import { prisma } from "@/lib/prisma";
 import { useUploadMidias } from "@/hooks/useUpload";
+import Image from "next/image";
 import { ImovelFront } from "@/types/imovel";
 import CustomCheckbox from "@/components/busca/CustomCheckbox";
+import Header from "@/components/Header";
+import FiltroImoveis from "@/components/busca/Filtro";
+import { Filtros } from "@/types/imovel";
+import PropertyCard from "@/components/index/PropertyCard";
 
 interface Tag {
   id: string;
@@ -19,8 +24,11 @@ interface DashboardProps {
 
 export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardProps) {
   const [imoveis, setImoveis] = useState(initialImoveis);
+  const capaInputRef = useRef<HTMLInputElement>(null);
   const [busca, setBusca] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [capa, setCapa] = useState<string | null>(null);
+  const [capaFile, setCapaFile] = useState<File | null>(null);
   const [editImovel, setEditImovel] = useState<ImovelFront | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -75,15 +83,22 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
 
     const savedImovel = await res.json();
 
-    // Upload de novas mídias
+    // Upload da capa
+    let capaUrl = null;
+    if (capaFile) {
+      const [capaUpload] = await upload([capaFile]);
+      capaUrl = capaUpload.url;
+    }
+
+    // Upload das outras mídias (excluindo a capa)
+    const outrasMidias = selectedFiles.filter(f => f !== capaFile);
     const midiasUploadUrls: string[] = [];
-    if (selectedFiles.length > 0) {
-      const midiasUpload = await upload(selectedFiles);
+    if (outrasMidias.length > 0) {
+      const midiasUpload = await upload(outrasMidias);
       if (erroUpload) {
         alert(erroUpload);
         return;
       }
-
       for (const midia of midiasUpload) {
         await fetch("/api/midias", {
           method: "POST",
@@ -98,6 +113,13 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
       }
     }
 
+    // Atualiza o array de mídias colocando a capa em primeiro
+    const updatedImovel: ImovelFront = {
+      ...savedImovel,
+      tags: selectedTags,
+      midias: capaUrl ? [capaUrl, ...midiasUploadUrls] : [...midiasUploadUrls],
+    };
+
     // Salva tags
     if (selectedTags.length > 0) {
       await fetch("/api/imoveltags", {
@@ -109,14 +131,6 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
         }),
       });
     }
-
-    const updatedImovel: ImovelFront = {
-      ...savedImovel,
-      tags: selectedTags,
-      midias: editImovel?.midias
-        ? [...editImovel.midias, ...midiasUploadUrls]
-        : [...midiasUploadUrls],
-    };
 
     if (editImovel) {
       setImoveis((prev) =>
@@ -131,6 +145,8 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
     setSelectedFiles([]);
     setPreviewUrls([]);
     setSelectedTags([]);
+    setCapa(null);
+    setCapaFile(null);
   }
 
   async function excluirImovel(id: string) {
@@ -150,7 +166,6 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
 
     if (!confirm("Deseja excluir esta mídia?")) return;
 
-    // Chamada para API que remove a mídia do banco
     const res = await fetch("/api/midias", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -162,7 +177,6 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
       return;
     }
 
-    // Atualiza estado local
     setPreviewUrls((prev) => prev.filter((u) => u !== url));
     setEditImovel((prev) =>
       prev
@@ -175,72 +189,106 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
     if (editImovel) {
       setSelectedTags(editImovel.tags || []);
       setPreviewUrls(editImovel.midias || []);
+      setCapa(editImovel.midias[0] || null);
+      setCapaFile(null);
       setSelectedFiles([]);
     } else {
       setSelectedTags([]);
       setPreviewUrls([]);
+      setCapa(null);
+      setCapaFile(null);
       setSelectedFiles([]);
     }
   }, [editImovel]);
 
+  // Hook para fechar com ESC
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setModalOpen(false);
+      }
+    };
+    if (modalOpen) {
+      document.addEventListener("keydown", handleEsc);
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [modalOpen]);
+
+  function aplicarFiltros(filtros: Filtros) {
+    let filtrados = initialImoveis;
+
+    if (filtros.tipo) filtrados = filtrados.filter(i => i.tipo === filtros.tipo);
+    if (filtros.nome) filtrados = filtrados.filter(i =>
+      i.nome.toLowerCase().includes(filtros.nome!.toLowerCase())
+    );
+    if (filtros.endereco) filtrados = filtrados.filter(i =>
+      i.endereco.toLowerCase().includes(filtros.endereco!.toLowerCase())
+    );
+    if (filtros.cidade) filtrados = filtrados.filter(i =>
+      i.cidade.toLowerCase().includes(filtros.cidade!.toLowerCase())
+    );
+    if (filtros.estado) filtrados = filtrados.filter(i =>
+      i.estado.toLowerCase().includes(filtros.estado!.toLowerCase())
+    );
+    if (filtros.valorMin !== undefined) filtrados = filtrados.filter(i => i.valor >= filtros.valorMin!);
+    if (filtros.valorMax !== undefined) filtrados = filtrados.filter(i => i.valor <= filtros.valorMax!);
+    if (filtros.quartos !== undefined) filtrados = filtrados.filter(i => i.quartos >= filtros.quartos!);
+    if (filtros.banheiros !== undefined) filtrados = filtrados.filter(i => i.banheiros >= filtros.banheiros!);
+    if (filtros.vagas !== undefined) filtrados = filtrados.filter(i => i.vagas >= filtros.vagas!);
+    if (filtros.metrosMin !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados >= filtros.metrosMin!);
+    if (filtros.metrosMax !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados <= filtros.metrosMax!);
+    if (filtros.lancamento) filtrados = filtrados.filter(i => i.lancamento);
+    if (filtros.tags && filtros.tags.length > 0) {
+      filtrados = filtrados.filter(i =>
+        filtros.tags!.every(tag =>
+          i.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+        )
+      );
+    }
+
+    setImoveis(filtrados);
+  }
+
   return (
     <div className={styles.dashboard}>
-      <header className={styles.header}>
-        <div>
-          <h1>Dashboard de Imóveis</h1>
-          <p>Gerencie seus imóveis de forma simples</p>
-        </div>
-        <div className={styles.headerActions}>
-          <input
-            type="text"
-            placeholder="Buscar imóvel..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-          />
-          <button
-            onClick={() => {
-              setEditImovel(null);
-              setModalOpen(true);
-            }}
-          >
-            + Adicionar Imóvel
-          </button>
-        </div>
-      </header>
 
-      <div className={styles.cardsGrid}>
-        {imoveis
-          .filter((i) => i.nome.toLowerCase().includes(busca.toLowerCase()))
-          .map((imovel) => (
-            <div
-              key={imovel.id}
-              className={styles.card}
-              onClick={() => {
-                setEditImovel(imovel);
-                setModalOpen(true);
-              }}
-            >
-              <h3 className={styles.cardTitle}>{imovel.nome}</h3>
-              <p>
-                {imovel.tipo} - {imovel.cidade}/{imovel.estado}
-              </p>
-              <p>
-                <b>R$ {imovel.valor.toLocaleString()}</b>
-              </p>
-              <p>
-                {imovel.quartos}Q • {imovel.banheiros}B • {imovel.vagas}V
-              </p>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  excluirImovel(imovel.id);
+      <Header
+        admin={true}
+        onAddImovel={() => {
+          setEditImovel(null);
+          setModalOpen(true);
+        }}
+      />
+
+      <main className={styles.content}>
+        <FiltroImoveis onFilterChange={aplicarFiltros} />
+        <div className={styles.cardsGrid}>
+          {imoveis
+            .filter((i) => i.nome.toLowerCase().includes(busca.toLowerCase()))
+            .map((imovel) => (
+              <PropertyCard
+                key={imovel.id}
+                id={imovel.id}
+                image={imovel.midias?.[0]}
+                price={imovel.valor}
+                title={imovel.nome}
+                location={`${imovel.endereco} / ${imovel.cidade} / ${imovel.estado}`}
+                quartos={imovel.quartos}
+                banheiros={imovel.banheiros}
+                area={`${imovel.metrosQuadrados} m²`}
+                isAdmin
+                onGoClick={() => {
+                  setEditImovel(imovel);
+                  setModalOpen(true);
                 }}
-              >
-                Excluir
-              </button>
-            </div>
-          ))}
-      </div>
+                onDeleteClick={() => excluirImovel(imovel.id)}
+              />
+            ))}
+        </div>
+      </main>
+
 
       {modalOpen && (
         <div
@@ -251,206 +299,296 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
             className={styles.modal}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2>{editImovel ? "Editar Imóvel" : "Novo Imóvel"}</h2>
+            <div className={styles.modalHeader}>
+              <h2>{editImovel ? "Editar Imóvel" : "Novo Imóvel"}</h2>
+              <button
+                type="button"
+                className={styles.closeButton}
+                onClick={() => setModalOpen(false)}
+              >
+                <Image
+                  src="/assets/x-circle.svg"
+                  alt="x-circle-icon"
+                  width={32}
+                  height={32}
+                  className={styles.closeIcon}
+                />
+
+              </button>
+            </div>
 
             <form onSubmit={salvarImovel} className={styles.form}>
-              {/* Campos do formulário */}
-              <div className={styles.row}>
-                <div className={styles.field}>
-                  <label htmlFor="nome">Nome</label>
-                  <input
-                    id="nome"
-                    name="nome"
-                    placeholder="Nome"
-                    defaultValue={editImovel?.nome}
-                    required
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="tipo">Tipo</label>
-                  <input
-                    id="tipo"
-                    name="tipo"
-                    placeholder="Tipo"
-                    defaultValue={editImovel?.tipo}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles.row}>
-                <div className={styles.field}>
-                  <label htmlFor="valor">Valor (R$)</label>
-                  <input
-                    id="valor"
-                    name="valor"
-                    type="number"
-                    placeholder="Valor"
-                    defaultValue={editImovel?.valor}
-                    required
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="metrosQuadrados">Área (m²)</label>
-                  <input
-                    id="metrosQuadrados"
-                    name="metrosQuadrados"
-                    type="number"
-                    placeholder="Área (m²)"
-                    defaultValue={editImovel?.metrosQuadrados}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.row}>
-                <div className={styles.field}>
-                  <label htmlFor="cidade">Cidade</label>
-                  <input
-                    id="cidade"
-                    name="cidade"
-                    placeholder="Cidade"
-                    defaultValue={editImovel?.cidade}
-                    required
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="estado">Estado</label>
-                  <input
-                    id="estado"
-                    name="estado"
-                    placeholder="Estado"
-                    defaultValue={editImovel?.estado}
-                    required
-                  />
-                </div>
-              </div>
-
+              {/* Upload da capa */}
               <div className={styles.field}>
-                <label htmlFor="endereco">Endereço</label>
                 <input
-                  id="endereco"
-                  name="endereco"
-                  placeholder="Endereço"
-                  defaultValue={editImovel?.endereco}
-                />
-              </div>
-
-              <div className={styles.row}>
-                <div className={styles.field}>
-                  <label htmlFor="quartos">Quartos</label>
-                  <input
-                    id="quartos"
-                    name="quartos"
-                    type="number"
-                    placeholder="Quartos"
-                    defaultValue={editImovel?.quartos}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="banheiros">Banheiros</label>
-                  <input
-                    id="banheiros"
-                    name="banheiros"
-                    type="number"
-                    placeholder="Banheiros"
-                    defaultValue={editImovel?.banheiros}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="vagas">Vagas</label>
-                  <input
-                    id="vagas"
-                    name="vagas"
-                    type="number"
-                    placeholder="Vagas"
-                    defaultValue={editImovel?.vagas}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="descricao">Descrição</label>
-                <textarea
-                  id="descricao"
-                  name="descricao"
-                  placeholder="Descrição"
-                  defaultValue={editImovel?.descricao}
-                ></textarea>
-              </div>
-
-              {/* Tags checkboxes */}
-              <div className={styles.field}>
-                <label>Tags</label>
-                <div className={styles.tagsContainer}>
-                  {tags.map((tag) => (
-                    <CustomCheckbox
-                      key={tag.id}
-                      id={`tag-${tag.id}`}
-                      label={tag.nome}
-                      checked={selectedTags.includes(tag.id)}
-                      onChange={() => handleTagChange(tag.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-
-              {/* Input de mídias */}
-              <div className={styles.field}>
-                <label htmlFor="midias">Fotos/Vídeos</label>
-                {editImovel && (
-                  <button
-                    type="button"
-                    onClick={() => document.getElementById("midias")?.click()}
-                  >
-                    + Adicionar mídia
-                  </button>
-                )}
-                <input
-                  id="midias"
-                  name="midias"
+                  id="capa"
                   type="file"
-                  multiple
-                  accept="image/*,video/*"
-                  onChange={handleFileChange}
-                  style={{ display: editImovel ? "none" : "block" }}
+                  accept="image/*"
+                  ref={capaInputRef}
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setCapa(URL.createObjectURL(file));
+                    setCapaFile(file);
+                  }}
                 />
-              </div>
-
-              <div className={styles.previewContainer}>
-                {previewUrls.map((url, idx) => {
-                  const file = selectedFiles[idx];
-                  const isVideo = file ? file.type.startsWith("video/") : (typeof url === "string" && url.endsWith(".mp4"));
-                  return (
-                    <div key={idx} className={styles.previewItem}>
-                      {isVideo ? (
-                        <video src={url} controls width={100} />
-                      ) : (
-                        <img src={url} alt={`preview-${idx}`} width={100} />
-                      )}
-                      {editImovel && (
-                        <button
-                          type="button"
-                          onClick={() => excluirMidia(url)}
-                        >
-                          X
-                        </button>
-                      )}
+                <div
+                  className={styles.previewCapa}
+                  onClick={() => capaInputRef.current?.click()}
+                >
+                  {capa ? (
+                    <Image
+                      src={capa}
+                      alt="Capa do imóvel"
+                      width={900}
+                      height={400}
+                      className={styles.capaImovel}
+                    />
+                  ) : (
+                    <div className={styles.capaPlaceholder}>
+                      Clique para selecionar a capa
                     </div>
-                  );
-                })}
+                  )}
+                </div>
               </div>
 
-              <div className={styles.actions}>
-                <button type="submit" disabled={uploadingMidias}>
-                  {uploadingMidias ? "Enviando mídias..." : "Salvar"}
-                </button>
+              {/* Campos do formulário */}
+              <div className={styles.contentForm}>
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label htmlFor="nome">Nome</label>
+                    <input
+                      id="nome"
+                      name="nome"
+                      placeholder="Nome"
+                      defaultValue={editImovel?.nome}
+                      required
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="tipo">Tipo</label>
+                    <input
+                      id="tipo"
+                      name="tipo"
+                      placeholder="Tipo"
+                      defaultValue={editImovel?.tipo}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label htmlFor="valor">Valor (R$)</label>
+                    <input
+                      id="valor"
+                      name="valor"
+                      type="number"
+                      placeholder="Valor"
+                      defaultValue={editImovel?.valor}
+                      required
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="metrosQuadrados">Área (m²)</label>
+                    <input
+                      id="metrosQuadrados"
+                      name="metrosQuadrados"
+                      type="number"
+                      placeholder="Área (m²)"
+                      defaultValue={editImovel?.metrosQuadrados}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label htmlFor="cidade">Cidade</label>
+                    <input
+                      id="cidade"
+                      name="cidade"
+                      placeholder="Cidade"
+                      defaultValue={editImovel?.cidade}
+                      required
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="estado">Estado</label>
+                    <input
+                      id="estado"
+                      name="estado"
+                      placeholder="Estado"
+                      defaultValue={editImovel?.estado}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label htmlFor="endereco">Endereço</label>
+                  <input
+                    id="endereco"
+                    name="endereco"
+                    placeholder="Endereço"
+                    defaultValue={editImovel?.endereco}
+                  />
+                </div>
+
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label htmlFor="quartos">Quartos</label>
+                    <input
+                      id="quartos"
+                      name="quartos"
+                      type="number"
+                      placeholder="Quartos"
+                      defaultValue={editImovel?.quartos}
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="banheiros">Banheiros</label>
+                    <input
+                      id="banheiros"
+                      name="banheiros"
+                      type="number"
+                      placeholder="Banheiros"
+                      defaultValue={editImovel?.banheiros}
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="vagas">Vagas</label>
+                    <input
+                      id="vagas"
+                      name="vagas"
+                      type="number"
+                      placeholder="Vagas"
+                      defaultValue={editImovel?.vagas}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label htmlFor="descricao">Descrição</label>
+                  <textarea
+                    id="descricao"
+                    name="descricao"
+                    placeholder="Descrição"
+                    defaultValue={editImovel?.descricao}
+                  />
+                </div>
+
+                {/* Checkbox de Lançamento */}
+                <div className={styles.field}>
+                  <CustomCheckbox
+                    id="lancamento"
+                    label="Lançamento"
+                    checked={!!editImovel?.lancamento}
+                    onChange={() =>
+                      setEditImovel((prev) =>
+                        prev ? { ...prev, lancamento: !prev.lancamento } : prev
+                      )
+                    }
+                  />
+                </div>
+
+
+                {/* Tags */}
+                <div className={styles.field}>
+                  <label>Tags</label>
+                  <div className={styles.tagsContainer}>
+                    {tags.map((tag) => (
+                      <CustomCheckbox
+                        key={tag.id}
+                        id={`tag-${tag.id}`}
+                        label={tag.nome}
+                        checked={selectedTags.includes(tag.id)}
+                        onChange={() => handleTagChange(tag.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mídias */}
+                <div className={styles.fieldGaleria}>
+                  <label htmlFor="midias">Galeria:</label>
+                  {editImovel && (
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById("midias")?.click()}
+                    >
+                      + Adicionar mídia
+                    </button>
+                  )}
+                  <input
+                    id="midias"
+                    name="midias"
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={handleFileChange}
+                    style={{ display: editImovel ? "none" : "block" }}
+                  />
+                </div>
+
+                <div className={styles.previewContainer}>
+                  {previewUrls.map((url, idx) => {
+                    const file = selectedFiles[idx];
+                    const isVideo =
+                      file
+                        ? file.type.startsWith("video/")
+                        : typeof url === "string" && url.endsWith(".mp4");
+                    return (
+                      <div key={idx} className={styles.previewItem}>
+                        {isVideo ? (
+                          <video src={url} controls width={100} />
+                        ) : (
+                          <Image
+                            src={url}
+                            alt={`preview-${idx}`}
+                            fill
+                            className={styles.mediaImovel}
+                          />
+
+                        )}
+                        {editImovel && (
+                          <button
+                            type="button"
+                            className={styles.closeButtonMedia}
+                            onClick={() => excluirMidia(url)}
+                          >
+                            <Image
+                              src="/assets/x-circle.svg"
+                              alt="x-circle-icon"
+                              width={32}
+                              height={32}
+                              className={styles.closeIcon}
+                            />
+
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Ações */}
+                <div className={styles.actions}>
+                  <button type="submit" disabled={uploadingMidias}>
+                    {uploadingMidias ? "Enviando mídias..." : "Salvar"}
+                  </button>
+                </div>
+
               </div>
+
+
             </form>
           </div>
-        </div>
-      )}
-    </div>
+        </div >
+      )
+      }
+
+    </div >
   );
 }
 
