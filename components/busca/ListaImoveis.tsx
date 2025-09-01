@@ -1,7 +1,6 @@
-// components/busca/ListaImoveis.tsx
 import React from "react";
 import type { Imovel } from "@/types/imovel";
-import PropertyCard from "@/components/index/PropertyCard"; // ajuste o caminho se necessário
+import PropertyCard from "@/components/index/PropertyCard";
 import styles from "./ListaImoveis.module.css";
 
 type Props = {
@@ -42,3 +41,4 @@ export default function ListaImoveis({ imoveis }: Props) {
 
   );
 }
+

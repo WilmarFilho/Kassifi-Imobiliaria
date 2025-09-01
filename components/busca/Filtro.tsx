@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { Filtros } from "@/types/imovel";
 import styles from "./Filtro.module.css";
+import CustomCheckbox from "./CustomCheckbox";
 
 type Props = {
   onFilterChange: (filtros: Filtros) => void;
@@ -42,7 +43,9 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
       const exists = tags.some(t => t.toLowerCase() === tag.toLowerCase());
       return {
         ...prev,
-        tags: exists ? tags.filter(t => t.toLowerCase() !== tag.toLowerCase()) : [...tags, tag]
+        tags: exists
+          ? tags.filter(t => t.toLowerCase() !== tag.toLowerCase())
+          : [...tags, tag]
       };
     });
   }
@@ -80,7 +83,6 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           <option value="Apartamento">Apartamento</option>
           <option value="Casa">Casa</option>
           <option value="Sala Comercial">Sala Comercial</option>
-
         </select>
       </label>
 
@@ -131,7 +133,10 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           type="number"
           value={filtros.valorMin ?? ""}
           onChange={e =>
-            setField("valorMin", e.target.value === "" ? undefined : Number(e.target.value))
+            setField(
+              "valorMin",
+              e.target.value === "" ? undefined : Number(e.target.value)
+            )
           }
         />
       </label>
@@ -143,7 +148,10 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           type="number"
           value={filtros.valorMax ?? ""}
           onChange={e =>
-            setField("valorMax", e.target.value === "" ? undefined : Number(e.target.value))
+            setField(
+              "valorMax",
+              e.target.value === "" ? undefined : Number(e.target.value)
+            )
           }
         />
       </label>
@@ -156,7 +164,10 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           min={0}
           value={filtros.quartos ?? ""}
           onChange={e =>
-            setField("quartos", e.target.value === "" ? undefined : Number(e.target.value))
+            setField(
+              "quartos",
+              e.target.value === "" ? undefined : Number(e.target.value)
+            )
           }
         />
       </label>
@@ -169,7 +180,10 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           min={0}
           value={filtros.banheiros ?? ""}
           onChange={e =>
-            setField("banheiros", e.target.value === "" ? undefined : Number(e.target.value))
+            setField(
+              "banheiros",
+              e.target.value === "" ? undefined : Number(e.target.value)
+            )
           }
         />
       </label>
@@ -182,7 +196,10 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           min={0}
           value={filtros.vagas ?? ""}
           onChange={e =>
-            setField("vagas", e.target.value === "" ? undefined : Number(e.target.value))
+            setField(
+              "vagas",
+              e.target.value === "" ? undefined : Number(e.target.value)
+            )
           }
         />
       </label>
@@ -194,7 +211,10 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           type="number"
           value={filtros.metrosMin ?? ""}
           onChange={e =>
-            setField("metrosMin", e.target.value === "" ? undefined : Number(e.target.value))
+            setField(
+              "metrosMin",
+              e.target.value === "" ? undefined : Number(e.target.value)
+            )
           }
         />
       </label>
@@ -206,19 +226,22 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
           type="number"
           value={filtros.metrosMax ?? ""}
           onChange={e =>
-            setField("metrosMax", e.target.value === "" ? undefined : Number(e.target.value))
+            setField(
+              "metrosMax",
+              e.target.value === "" ? undefined : Number(e.target.value)
+            )
           }
         />
       </label>
 
-      <label className={styles.checkbox}>
-        <input
-          type="checkbox"
-          checked={filtros.lancamento === true}
-          onChange={e => setField("lancamento", e.target.checked ? true : undefined)}
-        />
-        Apenas lançamentos
-      </label>
+      {/* Custom Checkbox: Apenas lançamentos */}
+      <CustomCheckbox
+        checked={filtros.lancamento === true}
+        onChange={() =>
+          setField("lancamento", filtros.lancamento ? undefined : true)
+        }
+        label="Apenas lançamentos"
+      />
 
       <div className={styles.tagsBox}>
         <p className={styles.tagsTitle}>Comodidades / Tags</p>
@@ -228,10 +251,12 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
               t => t.toLowerCase() === tag.toLowerCase()
             );
             return (
-              <label key={tag} className={styles.tagLabel}>
-                <input type="checkbox" checked={checked} onChange={() => toggleTag(tag)} />
-                <span>{tag}</span>
-              </label>
+              <CustomCheckbox
+                key={tag}
+                checked={checked}
+                onChange={() => toggleTag(tag)}
+                label={tag}
+              />
             );
           })}
         </div>
@@ -241,8 +266,9 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
         <button type="button" onClick={limpar} className={styles.clearBtn}>
           Limpar filtros
         </button>
-    
       </div>
     </aside>
   );
 }
+
+

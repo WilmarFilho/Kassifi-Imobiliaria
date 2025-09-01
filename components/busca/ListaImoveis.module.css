@@ -3,11 +3,12 @@
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
   width: 100%;
-  align-items: center;
+  align-items: start;
   padding-bottom: 80px;
   overflow-y: auto;
   scrollbar-width: none;
   box-sizing: border-box;
+  min-height: 100vh;
 }
 
 .wrapperListBusca {
@@ -22,3 +23,4 @@
   justify-content: space-between;
   align-items: center;
 }
+

@@ -12,10 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     if (req.method === "GET") {
       const imoveis = await prisma.imovel.findMany({
-        include: {
-          tags: { include: { tag: true } },
-          midias: true,
-        },
+        include: { tags: { include: { tag: true } }, midias: true },
         orderBy: { criadoEm: "desc" },
       });
       return res.status(200).json(imoveis);
@@ -37,17 +34,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const imovel = await prisma.imovel.create({
         data: {
           ...parsedData,
-          tags: parsedData.tags
-            ? { create: parsedData.tags.map((tagId: string) => ({ tag: { connect: { id: tagId } } })) }
+          // Cria tags associadas
+          tags: parsedData.tags?.length
+            ? {
+                create: parsedData.tags.map((tagId: string) => ({
+                  tag: { connect: { id: tagId } },
+                })),
+              }
             : undefined,
-          midias: parsedData.midias
-            ? { create: parsedData.midias.map((m: { tipo: string; url: string }) => ({ tipo: m.tipo, url: m.url })) }
+          // Cria mídias associadas
+          midias: parsedData.midias?.length
+            ? {
+                create: parsedData.midias.map((m: { url: string; tipo: string }) => ({
+                  url: m.url,
+                  tipo: m.tipo,
+                })),
+              }
             : undefined,
         },
-        include: {
-          tags: { include: { tag: true } },
-          midias: true,
-        },
+        include: { tags: { include: { tag: true } }, midias: true },
       });
 
       return res.status(201).json(imovel);
@@ -56,6 +61,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Método não permitido" });
   } catch (error: unknown) {
     console.error("Erro API /imoveis:", error);
-    return res.status(500).json({ error: "Erro no servidor", details: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
+      error: "Erro no servidor",
+      details: error instanceof Error ? error.message : String(error),
+    });
   }
 }

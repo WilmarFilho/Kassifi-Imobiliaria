@@ -34,3 +34,25 @@ export type Filtros = {
   lancamento?: boolean | null;
   tags?: string[]; // lista de tags selecionadas
 };
+
+
+
+// /types/imovel.ts
+export interface ImovelFront {
+  id: string;
+  tipo: string;
+  nome: string;
+  lancamento: boolean;
+  valor: number;
+  cidade: string;
+  estado: string;
+  endereco: string;
+  quartos: number;
+  banheiros: number;
+  vagas: number;
+  metrosQuadrados: number;
+  descricao: string;
+  criadoEm: string; // string ISO para front
+  tags: string[];
+  midias: string[];
+}
