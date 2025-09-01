@@ -10,19 +10,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: "Não autorizado" });
     }
 
-    // -------------------- CREATE --------------------
     if (req.method === "POST") {
       const { imovelId, url, tipo } = req.body;
       if (!imovelId || !url || !tipo) {
         return res.status(400).json({ error: "Campos obrigatórios: imovelId, url, tipo" });
       }
 
-      const midia = await prisma.midia.create({
-        data: { imovelId, url, tipo },
-      });
-
-      return res.status(201).json(midia);
+      try {
+        const novaMidia = await prisma.midia.create({
+          data: { imovelId, url, tipo },
+        });
+        return res.status(201).json(novaMidia);
+      } catch (error: unknown) {
+        console.error("Erro API /midias POST:", error);
+        return res.status(500).json({
+          error: "Erro no servidor",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
+
+
+    if (req.method === "PUT") {
+      const { imovelId, urlNova } = req.body;
+      if (!imovelId || !urlNova) {
+        return res.status(400).json({ error: "Campos obrigatórios: imovelId, urlNova" });
+      }
+
+      try {
+
+        const midiaAtual = await prisma.midia.findFirst({ where: { imovelId, tipo: 'capa' } });
+
+        if (!midiaAtual) {
+          return res.status(404).json({ error: "Mídia não encontrada" });
+        }
+
+        // Swap de URLs
+        await prisma.midia.update({ where: { id: midiaAtual.id }, data: { url: urlNova } });
+
+        return res.status(200).json({ success: true });
+      } catch (error: unknown) {
+        console.error("Erro API /midias PUT:", error);
+        return res.status(500).json({ error: "Erro no servidor" });
+      }
+    }
+
 
     if (req.method === "DELETE") {
       const { imovelId, url } = req.body;

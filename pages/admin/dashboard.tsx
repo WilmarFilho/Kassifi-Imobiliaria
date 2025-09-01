@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../../styles/Dashboard.module.css";
 import { getSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
@@ -24,8 +24,8 @@ interface DashboardProps {
 
 export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardProps) {
   const [imoveis, setImoveis] = useState(initialImoveis);
+  const [imoveisFiltrados, setImoveisFiltrados] = useState(initialImoveis);
   const capaInputRef = useRef<HTMLInputElement>(null);
-  const [busca, setBusca] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [capa, setCapa] = useState<string | null>(null);
   const [capaFile, setCapaFile] = useState<File | null>(null);
@@ -33,8 +33,18 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [novoLancamento, setNovoLancamento] = useState(false);
 
   const { upload, loading: uploadingMidias, erro: erroUpload } = useUploadMidias();
+
+  async function fetchImoveis() {
+    const res = await fetch("/api/imoveis");
+    if (!res.ok) return alert("Erro ao buscar imóveis");
+    const data: ImovelFront[] = await res.json();
+
+    setImoveis(data);
+    setImoveisFiltrados(data); // 🔥 garante que a lista filtrada começa com todos
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -55,6 +65,12 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
 
   async function salvarImovel(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (!editImovel && !capaFile) {
+      alert("Selecione uma capa antes de salvar o imóvel.");
+      return;
+    }
+
     const form = new FormData(e.currentTarget);
     const body = Object.fromEntries(form.entries());
 
@@ -65,9 +81,12 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
       banheiros: Number(body.banheiros || 0),
       vagas: Number(body.vagas || 0),
       metrosQuadrados: Number(body.metrosQuadrados || 0),
+      tags: selectedTags,
+      lancamento: editImovel ? editImovel.lancamento : novoLancamento,
     };
 
     const url = editImovel ? `/api/imoveis/${editImovel.id}` : "/api/imoveis";
+
     const method = editImovel ? "PUT" : "POST";
 
     const res = await fetch(url, {
@@ -83,63 +102,69 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
 
     const savedImovel = await res.json();
 
-    // Upload da capa
-    let capaUrl = null;
-    if (capaFile) {
-      const [capaUpload] = await upload([capaFile]);
-      capaUrl = capaUpload.url;
-    }
+    // Upload de mídias
+    if (!editImovel) {
+      // Criando imóvel -> sobe tudo (capa + galeria)
+      const arquivosParaUpload = capaFile
+        ? [capaFile, ...selectedFiles.filter(f => f !== capaFile)]
+        : selectedFiles;
 
-    // Upload das outras mídias (excluindo a capa)
-    const outrasMidias = selectedFiles.filter(f => f !== capaFile);
-    const midiasUploadUrls: string[] = [];
-    if (outrasMidias.length > 0) {
-      const midiasUpload = await upload(outrasMidias);
-      if (erroUpload) {
-        alert(erroUpload);
-        return;
+      if (arquivosParaUpload.length > 0) {
+        const midiasUpload = await upload(arquivosParaUpload);
+
+        await Promise.all(
+          midiasUpload.map((midia, idx) => {
+            const tipo = (capaFile && idx === 0) ? "capa" : midia.tipo;
+            return fetch("/api/midias", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                imovelId: savedImovel.id,
+                url: midia.url,
+                tipo,
+              }),
+            });
+          })
+        );
       }
-      for (const midia of midiasUpload) {
-        await fetch("/api/midias", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            imovelId: savedImovel.id,
-            url: midia.url,
-            tipo: midia.tipo,
-          }),
-        });
-        midiasUploadUrls.push(midia.url);
-      }
-    }
-
-    // Atualiza o array de mídias colocando a capa em primeiro
-    const updatedImovel: ImovelFront = {
-      ...savedImovel,
-      tags: selectedTags,
-      midias: capaUrl ? [capaUrl, ...midiasUploadUrls] : [...midiasUploadUrls],
-    };
-
-    // Salva tags
-    if (selectedTags.length > 0) {
-      await fetch("/api/imoveltags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imovelId: savedImovel.id,
-          tagIds: selectedTags,
-        }),
-      });
-    }
-
-    if (editImovel) {
-      setImoveis((prev) =>
-        prev.map((i) => (i.id === updatedImovel.id ? updatedImovel : i))
-      );
     } else {
-      setImoveis((prev) => [updatedImovel, ...prev]);
+      // Editando imóvel -> só atualiza capa se mudou
+      if (capaFile) {
+        const [capaUpload] = await upload([capaFile]);
+        if (capaUpload.url !== capa) {
+          await fetch("/api/midias", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              imovelId: savedImovel.id,
+              urlNova: capaUpload.url,
+            }),
+          });
+        }
+      }
+
+      // Outras mídias (sem capa)
+      if (selectedFiles.length > 0) {
+        const midiasUpload = await upload(selectedFiles);
+        await Promise.all(
+          midiasUpload.map((midia) =>
+            fetch("/api/midias", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                imovelId: savedImovel.id,
+                url: midia.url,
+                tipo: midia.tipo,
+              }),
+            })
+          )
+        );
+      }
     }
 
+    await fetchImoveis(); // Sempre buscar imóveis atualizados
+
+    // Reset modal
     setModalOpen(false);
     setEditImovel(null);
     setSelectedFiles([]);
@@ -158,12 +183,11 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
       return;
     }
 
-    setImoveis((prev) => prev.filter((i) => i.id !== id));
+    await fetchImoveis();
   }
 
   async function excluirMidia(url: string) {
     if (!editImovel) return;
-
     if (!confirm("Deseja excluir esta mídia?")) return;
 
     const res = await fetch("/api/midias", {
@@ -178,18 +202,23 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
     }
 
     setPreviewUrls((prev) => prev.filter((u) => u !== url));
-    setEditImovel((prev) =>
-      prev
-        ? { ...prev, midias: prev.midias.filter((m) => m !== url) }
-        : null
-    );
   }
 
+  // Hook para setar imóvel de edição
   useEffect(() => {
     if (editImovel) {
       setSelectedTags(editImovel.tags || []);
-      setPreviewUrls(editImovel.midias || []);
-      setCapa(editImovel.midias[0] || null);
+
+      // Encontrar a capa corretamente
+      const capaInicial = editImovel.midias.find(m => m.tipo === "capa")?.url || null;
+
+      // Filtrar as outras mídias para preview (excluindo a capa)
+      const outrasMidias = editImovel.midias
+        .filter(m => m.url !== capaInicial)
+        .map(m => m.url);
+
+      setCapa(capaInicial);
+      setPreviewUrls(outrasMidias);
       setCapaFile(null);
       setSelectedFiles([]);
     } else {
@@ -201,55 +230,69 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
     }
   }, [editImovel]);
 
-  // Hook para fechar com ESC
+
+  // Hook para fechar modal com ESC
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setModalOpen(false);
-      }
+      if (e.key === "Escape") setModalOpen(false);
     };
-    if (modalOpen) {
-      document.addEventListener("keydown", handleEsc);
-    }
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-    };
+    if (modalOpen) document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
   }, [modalOpen]);
 
-  function aplicarFiltros(filtros: Filtros) {
-    let filtrados = initialImoveis;
+  const aplicarFiltros = useCallback((filtros: Filtros) => {
+    let filtrados = imoveis; // imoveis aqui é a referência estável do estado original
 
-    if (filtros.tipo) filtrados = filtrados.filter(i => i.tipo === filtros.tipo);
-    if (filtros.nome) filtrados = filtrados.filter(i =>
-      i.nome.toLowerCase().includes(filtros.nome!.toLowerCase())
-    );
-    if (filtros.endereco) filtrados = filtrados.filter(i =>
-      i.endereco.toLowerCase().includes(filtros.endereco!.toLowerCase())
-    );
-    if (filtros.cidade) filtrados = filtrados.filter(i =>
-      i.cidade.toLowerCase().includes(filtros.cidade!.toLowerCase())
-    );
-    if (filtros.estado) filtrados = filtrados.filter(i =>
-      i.estado.toLowerCase().includes(filtros.estado!.toLowerCase())
-    );
-    if (filtros.valorMin !== undefined) filtrados = filtrados.filter(i => i.valor >= filtros.valorMin!);
-    if (filtros.valorMax !== undefined) filtrados = filtrados.filter(i => i.valor <= filtros.valorMax!);
-    if (filtros.quartos !== undefined) filtrados = filtrados.filter(i => i.quartos >= filtros.quartos!);
-    if (filtros.banheiros !== undefined) filtrados = filtrados.filter(i => i.banheiros >= filtros.banheiros!);
-    if (filtros.vagas !== undefined) filtrados = filtrados.filter(i => i.vagas >= filtros.vagas!);
-    if (filtros.metrosMin !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados >= filtros.metrosMin!);
-    if (filtros.metrosMax !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados <= filtros.metrosMax!);
-    if (filtros.lancamento) filtrados = filtrados.filter(i => i.lancamento);
-    if (filtros.tags && filtros.tags.length > 0) {
+    // Filtros de texto
+    if (filtros.tipo) {
+      filtrados = filtrados.filter(i => i.tipo === filtros.tipo);
+    }
+
+    if (filtros.nome?.trim()) {
+      const nome = filtros.nome.toLowerCase();
+      filtrados = filtrados.filter(i => i.nome.toLowerCase().includes(nome));
+    }
+
+    if (filtros.endereco?.trim()) {
+      const endereco = filtros.endereco.toLowerCase();
+      filtrados = filtrados.filter(i => i.endereco.toLowerCase().includes(endereco));
+    }
+
+    if (filtros.cidade?.trim()) {
+      const cidade = filtros.cidade.toLowerCase();
+      filtrados = filtrados.filter(i => i.cidade.toLowerCase().includes(cidade));
+    }
+
+    if (filtros.estado?.trim()) {
+      const estado = filtros.estado.toLowerCase();
+      filtrados = filtrados.filter(i => i.estado.toLowerCase().includes(estado));
+    }
+
+    // Filtros numéricos
+    const { valorMin, valorMax, quartos, banheiros, vagas, metrosMin, metrosMax, lancamento, tags } = filtros;
+
+    if (valorMin !== undefined) filtrados = filtrados.filter(i => i.valor >= valorMin);
+    if (valorMax !== undefined) filtrados = filtrados.filter(i => i.valor <= valorMax);
+    if (quartos !== undefined) filtrados = filtrados.filter(i => i.quartos >= quartos);
+    if (banheiros !== undefined) filtrados = filtrados.filter(i => i.banheiros >= banheiros);
+    if (vagas !== undefined) filtrados = filtrados.filter(i => i.vagas >= vagas);
+    if (metrosMin !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados >= metrosMin);
+    if (metrosMax !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados <= metrosMax);
+
+    // Filtro booleano
+    if (lancamento) filtrados = filtrados.filter(i => i.lancamento);
+
+    // Filtro de tags
+    if (tags && tags.length > 0) {
+      console.log(tags)
+      console.log(filtrados)
       filtrados = filtrados.filter(i =>
-        filtros.tags!.every(tag =>
-          i.tags.some(t => t.toLowerCase() === tag.toLowerCase())
-        )
+        tags.every(tag => i.tags.some(t => t.toLowerCase() === tag.toLowerCase()))
       );
     }
 
-    setImoveis(filtrados);
-  }
+    setImoveisFiltrados(filtrados);
+  }, [imoveis]);
 
   return (
     <div className={styles.dashboard}>
@@ -263,15 +306,16 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
       />
 
       <main className={styles.content}>
-        <FiltroImoveis onFilterChange={aplicarFiltros} />
+        <FiltroImoveis onFilterChange={aplicarFiltros} tags={tags} />
         <div className={styles.cardsGrid}>
-          {imoveis
-            .filter((i) => i.nome.toLowerCase().includes(busca.toLowerCase()))
+          {imoveisFiltrados
             .map((imovel) => (
               <PropertyCard
+                lancamento={imovel.lancamento}
                 key={imovel.id}
+                busca={true}
                 id={imovel.id}
-                image={imovel.midias?.[0]}
+                image={imovel.midias?.find(m => m.tipo === "capa")?.url || ""}
                 price={imovel.valor}
                 title={imovel.nome}
                 location={`${imovel.endereco} / ${imovel.cidade} / ${imovel.estado}`}
@@ -285,10 +329,10 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                 }}
                 onDeleteClick={() => excluirImovel(imovel.id)}
               />
+
             ))}
         </div>
       </main>
-
 
       {modalOpen && (
         <div
@@ -368,13 +412,22 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                   </div>
                   <div className={styles.field}>
                     <label htmlFor="tipo">Tipo</label>
-                    <input
+                    <select
                       id="tipo"
                       name="tipo"
-                      placeholder="Tipo"
-                      defaultValue={editImovel?.tipo}
+                      defaultValue={editImovel?.tipo || ""}
                       required
-                    />
+                    >
+                      <option value="" disabled>
+                        Selecione o tipo
+                      </option>
+                      <option value="Casa">Casa</option>
+                      <option value="Apartamento">Apartamento</option>
+                      <option value="Sobrado">Sobrado</option>
+                      <option value="Kitnet">Kitnet</option>
+                      <option value="Cobertura">Cobertura</option>
+                      <option value="Terreno">Terreno</option>
+                    </select>
                   </div>
                 </div>
 
@@ -396,6 +449,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                       id="metrosQuadrados"
                       name="metrosQuadrados"
                       type="number"
+                      required
                       placeholder="Área (m²)"
                       defaultValue={editImovel?.metrosQuadrados}
                     />
@@ -415,14 +469,45 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                   </div>
                   <div className={styles.field}>
                     <label htmlFor="estado">Estado</label>
-                    <input
+                    <select
                       id="estado"
                       name="estado"
-                      placeholder="Estado"
-                      defaultValue={editImovel?.estado}
+                      defaultValue={editImovel?.estado || ""}
                       required
-                    />
+                    >
+                      <option value="" disabled>
+                        Selecione o estado
+                      </option>
+                      <option value="AC">Acre (AC)</option>
+                      <option value="AL">Alagoas (AL)</option>
+                      <option value="AP">Amapá (AP)</option>
+                      <option value="AM">Amazonas (AM)</option>
+                      <option value="BA">Bahia (BA)</option>
+                      <option value="CE">Ceará (CE)</option>
+                      <option value="DF">Distrito Federal (DF)</option>
+                      <option value="ES">Espírito Santo (ES)</option>
+                      <option value="GO">Goiás (GO)</option>
+                      <option value="MA">Maranhão (MA)</option>
+                      <option value="MT">Mato Grosso (MT)</option>
+                      <option value="MS">Mato Grosso do Sul (MS)</option>
+                      <option value="MG">Minas Gerais (MG)</option>
+                      <option value="PA">Pará (PA)</option>
+                      <option value="PB">Paraíba (PB)</option>
+                      <option value="PR">Paraná (PR)</option>
+                      <option value="PE">Pernambuco (PE)</option>
+                      <option value="PI">Piauí (PI)</option>
+                      <option value="RJ">Rio de Janeiro (RJ)</option>
+                      <option value="RN">Rio Grande do Norte (RN)</option>
+                      <option value="RS">Rio Grande do Sul (RS)</option>
+                      <option value="RO">Rondônia (RO)</option>
+                      <option value="RR">Roraima (RR)</option>
+                      <option value="SC">Santa Catarina (SC)</option>
+                      <option value="SP">São Paulo (SP)</option>
+                      <option value="SE">Sergipe (SE)</option>
+                      <option value="TO">Tocantins (TO)</option>
+                    </select>
                   </div>
+
                 </div>
 
                 <div className={styles.field}>
@@ -430,6 +515,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                   <input
                     id="endereco"
                     name="endereco"
+                    required
                     placeholder="Endereço"
                     defaultValue={editImovel?.endereco}
                   />
@@ -442,6 +528,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                       id="quartos"
                       name="quartos"
                       type="number"
+                      required
                       placeholder="Quartos"
                       defaultValue={editImovel?.quartos}
                     />
@@ -452,6 +539,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                       id="banheiros"
                       name="banheiros"
                       type="number"
+                      required
                       placeholder="Banheiros"
                       defaultValue={editImovel?.banheiros}
                     />
@@ -462,6 +550,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                       id="vagas"
                       name="vagas"
                       type="number"
+                      required
                       placeholder="Vagas"
                       defaultValue={editImovel?.vagas}
                     />
@@ -472,6 +561,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                   <label htmlFor="descricao">Descrição</label>
                   <textarea
                     id="descricao"
+                    required
                     name="descricao"
                     placeholder="Descrição"
                     defaultValue={editImovel?.descricao}
@@ -483,11 +573,11 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                   <CustomCheckbox
                     id="lancamento"
                     label="Lançamento"
-                    checked={!!editImovel?.lancamento}
+                    checked={editImovel ? !!editImovel.lancamento : novoLancamento}
                     onChange={() =>
-                      setEditImovel((prev) =>
-                        prev ? { ...prev, lancamento: !prev.lancamento } : prev
-                      )
+                      editImovel
+                        ? setEditImovel(prev => prev ? { ...prev, lancamento: !prev.lancamento } : prev)
+                        : setNovoLancamento(prev => !prev)
                     }
                   />
                 </div>
@@ -547,6 +637,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                             src={url}
                             alt={`preview-${idx}`}
                             fill
+                            priority
                             className={styles.mediaImovel}
                           />
 
@@ -623,8 +714,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     descricao: i.descricao,
     criadoEm: i.criadoEm.toISOString(),
     tags: i.tags.map((t) => t.tag.id),
-    midias: i.midias.map((m) => m.url),
+    midias: i.midias.map((m) => ({ url: m.url, tipo: m.tipo })),
   }));
 
   return { props: { session, imoveis: imoveisSerialized, tags } };
 };
+

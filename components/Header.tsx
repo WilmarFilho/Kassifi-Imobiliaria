@@ -27,7 +27,7 @@ export default function Header({ variant = false, admin = false, onAddImovel }: 
     <header className={headerClass}>
       <div className={styles.logo}>
         <Link href="/">
-          <Image src={logoSrc} alt="Logo" width={210} height={120} />
+          <Image priority src={logoSrc} alt="Logo" width={210} height={120} />
         </Link>
       </div>
 

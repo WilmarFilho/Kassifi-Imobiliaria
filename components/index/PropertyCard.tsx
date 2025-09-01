@@ -8,6 +8,7 @@ interface PropertyCardProps {
     location: string;
     quartos: number;
     banheiros: number;
+    lancamento: boolean;
     area: string;
     id?: string;
     busca?: boolean;
@@ -25,11 +26,13 @@ export default function PropertyCard({
     banheiros,
     area,
     id,
+    lancamento,
     busca = false,
     isAdmin = false,
     onGoClick,
     onDeleteClick,
 }: PropertyCardProps) {
+
     return (
         <div
             className={`${busca ? styles.cardBusca : styles.card} ${isAdmin ? styles.admin : ""
@@ -40,16 +43,21 @@ export default function PropertyCard({
             <div className={styles.imageWrapper}>
                 <Image
                     src={image}
+                    priority
                     alt={title}
                     width={450}
                     height={50}
                     className={styles.imgImovel}
                 />
-                <span className={styles.tag}>
-                    <Image src="/assets/raio.svg" alt="raio-icon" width={22} height={22} />
-                    Lançamento
-                </span>
-                <p className={styles.price}>{price}</p>
+
+                {lancamento && (
+                    <span className={styles.tag}>
+                        <Image src="/assets/raio.svg" alt="raio-icon" width={22} height={22} />
+                        Lançamento
+                    </span>
+                )}
+
+                <p className={styles.price}>{price} R$</p>
             </div>
             <div className={styles.info}>
                 <div className={styles.titleLocation}>
@@ -91,7 +99,10 @@ export default function PropertyCard({
                                 width={27}
                                 height={27}
                                 className={styles.iconButton}
-                                onClick={() => onDeleteClick?.(id)}
+                                onClick={(e) => {
+                                    e.stopPropagation(); 
+                                    onDeleteClick?.(id);
+                                }}
                             />
                         )}
                     </div>

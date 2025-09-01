@@ -3,24 +3,17 @@ import type { Filtros } from "@/types/imovel";
 import styles from "./Filtro.module.css";
 import CustomCheckbox from "./CustomCheckbox";
 
+interface Tag {
+  id: string;
+  nome: string;
+}
+
 type Props = {
   onFilterChange: (filtros: Filtros) => void;
+  tags: Tag[];
 };
 
-const TAGS_DISPONIVEIS = [
-  "Piscina",
-  "Churrasqueira",
-  "Academia",
-  "Varanda",
-  "Garagem",
-  "Elevador",
-  "Lareira",
-  "Quintal",
-  "Vista Mar",
-  "Portaria 24h"
-];
-
-export default function FiltroImoveis({ onFilterChange }: Props) {
+export default function FiltroImoveis({ onFilterChange, tags }: Props) {
   const [filtros, setFiltros] = useState<Filtros>({
     valorMin: undefined,
     valorMax: undefined,
@@ -246,16 +239,14 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
       <div className={styles.tagsBox}>
         <p className={styles.tagsTitle}>Comodidades / Tags</p>
         <div className={styles.tagsGrid}>
-          {TAGS_DISPONIVEIS.map(tag => {
-            const checked = (filtros.tags ?? []).some(
-              t => t.toLowerCase() === tag.toLowerCase()
-            );
+          {(tags ?? []).map(tag => {
+            const checked = (filtros.tags ?? []).includes(tag.id);
             return (
               <CustomCheckbox
-                key={tag}
+                key={tag.id}
                 checked={checked}
-                onChange={() => toggleTag(tag)}
-                label={tag}
+                onChange={() => toggleTag(tag.id)}
+                label={tag.nome}
               />
             );
           })}
@@ -270,5 +261,3 @@ export default function FiltroImoveis({ onFilterChange }: Props) {
     </aside>
   );
 }
-
-

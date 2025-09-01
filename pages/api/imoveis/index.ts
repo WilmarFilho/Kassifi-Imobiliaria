@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]"; // ajuste o caminho se necessário
+import { authOptions } from "../auth/[...nextauth]";
+import { ImovelFront } from "@/types/imovel";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions);
@@ -15,11 +16,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         include: { tags: { include: { tag: true } }, midias: true },
         orderBy: { criadoEm: "desc" },
       });
-      return res.status(200).json(imoveis);
+
+      const imoveisSerialized: ImovelFront[] = imoveis.map((i) => ({
+        id: i.id,
+        tipo: i.tipo,
+        nome: i.nome,
+        lancamento: i.lancamento,
+        valor: i.valor,
+        cidade: i.cidade,
+        estado: i.estado,
+        endereco: i.endereco,
+        quartos: i.quartos,
+        banheiros: i.banheiros,
+        vagas: i.vagas,
+        metrosQuadrados: i.metrosQuadrados,
+        descricao: i.descricao,
+        criadoEm: i.criadoEm.toISOString(),
+        tags: i.tags.map((t) => t.tag.id),
+        midias: i.midias.map((m) => ({
+          url: m.url,
+          tipo: m.tipo,
+        })),
+      }));
+
+
+      return res.status(200).json(imoveisSerialized);
     }
 
     if (req.method === "POST") {
       const data = req.body;
+
+      // Verificação básica de campos obrigatórios
+      const requiredFields = [
+        "nome",
+        "tipo",
+        "valor",
+        "cidade",
+        "estado",
+        "endereco",
+        "quartos",
+        "banheiros",
+        "vagas",
+        "descricao",
+      ];
+
+      for (const field of requiredFields) {
+        if (!data[field] || data[field].toString().trim() === "") {
+          return res.status(400).json({ error: `Campo obrigatório ausente: ${field}` });
+        }
+      }
 
       const parsedData = {
         ...data,
@@ -37,19 +82,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           // Cria tags associadas
           tags: parsedData.tags?.length
             ? {
-                create: parsedData.tags.map((tagId: string) => ({
-                  tag: { connect: { id: tagId } },
-                })),
-              }
+              create: parsedData.tags.map((tagId: string) => ({
+                tag: { connect: { id: tagId } },
+              })),
+            }
             : undefined,
           // Cria mídias associadas
           midias: parsedData.midias?.length
             ? {
-                create: parsedData.midias.map((m: { url: string; tipo: string }) => ({
-                  url: m.url,
-                  tipo: m.tipo,
-                })),
-              }
+              create: parsedData.midias.map((m: { url: string; tipo: string }) => ({
+                url: m.url,
+                tipo: m.tipo,
+              })),
+            }
             : undefined,
         },
         include: { tags: { include: { tag: true } }, midias: true },

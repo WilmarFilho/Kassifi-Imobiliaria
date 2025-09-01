@@ -38,6 +38,12 @@ export type Filtros = {
 
 
 // /types/imovel.ts
+
+export interface MidiaFront {
+  url: string;
+  tipo: string;
+}
+
 export interface ImovelFront {
   id: string;
   tipo: string;
@@ -54,5 +60,5 @@ export interface ImovelFront {
   descricao: string;
   criadoEm: string; // string ISO para front
   tags: string[];
-  midias: string[];
+  midias: MidiaFront[];
 }
