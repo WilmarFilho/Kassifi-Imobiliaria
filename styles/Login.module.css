@@ -7,7 +7,7 @@
 }
 
 .card{
-  width:100%;
+  width:90%;
   max-width:28rem;
   background:var(--card-bg);
   padding:3rem 2rem;

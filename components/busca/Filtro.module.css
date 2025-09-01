@@ -197,3 +197,10 @@
   opacity: .6;
   cursor: not-allowed;
 }
+
+
+@media screen and (max-width: 840px) {
+  .sidebar {
+    width: 100%;
+  }
+}

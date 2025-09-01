@@ -3,9 +3,9 @@
 }
 
 .grid {
-    max-width: 1200px;
     margin: 0 auto;
     display: grid;
+    padding: 0 6rem;
     grid-template-columns: 1.1fr 1fr;
     gap: 3rem;
     font-family: Poppins, sans-serif;
@@ -157,6 +157,13 @@
 }
 
 /* Responsivo */
+
+@media (max-width: 1300px) {
+    .infoCard, .formCard {
+        padding: 30px;
+    }
+}
+
 @media (max-width: 900px) {
     .grid {
         grid-template-columns: 1fr;
@@ -165,4 +172,10 @@
     .mapBox {
         height: 220px;
     }
+}
+
+@media screen and (max-width: 780px) {
+  .grid {
+    padding: 0 1.8rem;
+  }
 }

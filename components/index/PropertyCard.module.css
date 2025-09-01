@@ -115,3 +115,12 @@
     width: 100%;
     height: 300px;
 }
+
+@media screen and (max-width: 780px) {
+  .features {
+    display: none;
+  }
+  .cardBusca {
+    height: 460px;
+  }
+}

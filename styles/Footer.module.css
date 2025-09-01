@@ -34,7 +34,7 @@
 
 .socialMediaIcons {
   display: flex;
-  gap: 12px;  
+  gap: 12px;
 }
 
 .list {
@@ -61,4 +61,37 @@
 .bottomSection a {
   color: rgba(0, 90, 170, 1);
   text-decoration: none;
+}
+
+@media screen and (max-width: 1310px) {
+
+  .topSection {
+    display: none;
+
+  }
+
+  .bottomSection {
+    background: rgba(0, 90, 170, 1);
+    color: #FFF;
+  }
+
+  .bottomSection a {
+    color: #FFF;
+  }
+
+}
+
+@media screen and (max-width: 1210px) {
+
+  .bottomSection {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+}
+
+@media screen and (max-width: 780px) {
+  .bottomSection {
+    padding: 1rem 1.8rem;
+  }
 }

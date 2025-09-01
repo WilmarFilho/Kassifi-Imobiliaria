@@ -22,7 +22,7 @@ export default function Sobre() {
             alt="banner-pagina-sobre"
             width={1600}             // dimensão base para cálculo de proporção
             height={300}
-            style={{ width: "100%", height: "800px", objectFit: "cover" }} // ocupa 100% da largura apenas
+            className={styles.bannerSobre}
             priority
           />
         </div>

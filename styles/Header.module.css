@@ -1,3 +1,6 @@
+/* ======================
+   HEADER BASE
+   ====================== */
 .header {
   display: flex;
   justify-content: space-between;
@@ -5,11 +8,21 @@
   padding: 0 6rem;
   background-color: #fff;
   box-shadow: 0 6px 18px rgba(2, 6, 23, 0.18);
+  position: relative;
 }
 
-.nav a,
-.nav :where(a) {
-  margin-left: 1.5rem;
+.headerVariant {
+  background-color: rgba(0, 90, 170, 1);
+  color: #fff;
+}
+
+/* ======================
+   NAV LINKS GERAL (APLICADO A navDesktop e navMobile)
+   ====================== */
+.navDesktop a,
+.navMobile a,
+.navDesktop :where(a),
+.navMobile :where(a) {
   padding: 12px 30px;
   color: #005AAA;
   border-radius: 16px;
@@ -18,10 +31,92 @@
   transition: .3s;
 }
 
-.nav a:hover {
+/* Estilos específicos para navDesktop */
+.navDesktop a {
+  margin-left: 1.5rem;
+}
+
+.headerVariant .navDesktop a,
+.headerVariant .navMobile a {
+  /* Aplica-se a ambos para a variante */
+  color: #fff;
+  background: transparent;
+}
+
+.navDesktop a:hover,
+.navDesktop a:focus,
+.navMobile a:hover,
+.navMobile a:focus {
   background-color: rgba(0, 90, 170, 0.12);
 }
 
+.headerVariant .navDesktop a:hover,
+.headerVariant .navDesktop a:focus,
+.headerVariant .navMobile a:hover,
+.headerVariant .navMobile a:focus {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Rota atual */
+.navDesktop a.active,
+.navDesktop a[aria-current="page"],
+.navMobile a.active,
+.navMobile a[aria-current="page"] {
+  background-color: rgba(0, 90, 170, 0.12);
+}
+
+.headerVariant .navDesktop a.active,
+.headerVariant .navDesktop a[aria-current="page"],
+.headerVariant .navMobile a.active,
+.headerVariant .navMobile a[aria-current="page"] {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ======================
+   BOTÃO HEADER
+   ====================== */
+.buttonHeader {
+  border-radius: 12px;
+  padding: 12px 28px;
+  background-color: transparent;
+  border: 1px solid rgba(0, 90, 170, 0.25);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.headerVariant .buttonHeader {
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e6f0ff;
+}
+
+.buttonHeader:hover {
+  background-color: rgba(0, 90, 170, 0.12);
+  border: 1px solid rgba(0, 90, 170, 0.1);
+}
+
+.headerVariant .buttonHeader:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.buttonHeader a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  font-weight: bold;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.buttonHeader a img {
+  margin-top: 4px;
+}
+
+/* ======================
+   ADMIN ACTIONS
+   ====================== */
 .adminActions {
   display: flex;
   gap: 24px;
@@ -43,92 +138,106 @@
   background-color: #1d4ed8;
 }
 
-/* estado persistente (rota atual) */
-.nav a.active,
-.nav a[aria-current="page"] {
-  text-decoration: none;
-  background-color: rgba(0, 90, 170, 0.12);
-}
-
-.buttonHeader {
+/* ======================
+   MENU HAMBURGER
+   ====================== */
+.hamburger {
+  display: none;
+  /* Escondido por padrão */
+  background: #fff;
+  border: none;
+  padding: 0.5rem;
   border-radius: 12px;
-  padding: 12px 28px;
-  background-color: transparent;
-  border: 1px solid rgba(0, 90, 170, 0.25);
-  transition: .3s;
   cursor: pointer;
+  z-index: 20;
 }
 
-.buttonHeader:hover {
-  background-color: rgba(0, 90, 170, 0.12);
-  border: 1px solid rgba(0, 90, 170, 0.10);
+.hamburgerVariant svg {
+  fill: #fff;
+  /* Altera a cor do SVG na variante */
 }
 
-.buttonHeader a {
+
+/* NAV DESKTOP */
+.navDesktop {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #005AAA;
-  font-size: 16px;
-  font-weight: bold;
-  gap: 8px;
-  text-decoration: none;
+  gap: 1.5rem;
 }
 
-.buttonHeader a img {
-  margin-top: 4px;
+/* NAV MOBILE */
+.navMobile {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 90vh;
+  padding: 1rem 5rem;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.1s ease-out, transform 0.3s ease-out;
+  /* Transição para o fechamento */
 }
 
-/* Variante White */
-.headerVariant {
-  background: rgba(0, 90, 170, 1);
-  color: #fff;
+.navMobile.show {
+  /* Apenas quando a classe 'show' está presente */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
-/* nav dentro da variante */
-.headerVariant .nav a,
-.headerVariant .nav :where(a) {
-  margin-left: 1.5rem;
-  padding: 12px 30px;
-  color: #FFF;
-  border-radius: 16px;
-  text-decoration: none;
-  font-weight: 480;
-  transition: background-color 0.25s ease, color 0.25s ease, transform 0.12s ease;
-  background: transparent;
+.navMobileVariant {
+  background-color: rgba(0, 90, 170, 1);
 }
 
-/* hover e foco */
-.headerVariant .nav a:hover,
-.headerVariant .nav a:focus {
-  background-color: rgba(255, 255, 255, 0.25);
+.navMobile a {
+  margin: 0.5rem 0;
+  /* Margem vertical para os links do menu mobile */
+  padding: 12px 15px;
+  /* Ajuste o padding para o mobile */
 }
 
-/* estado persistente (rota atual) na variante */
-.headerVariant .nav a.active,
-.headerVariant .nav a[aria-current="page"] {
-  background-color: rgba(255, 255, 255, 0.25);
+/* ======================
+   RESPONSIVIDADE
+   ====================== */
+
+@media screen and (min-width: 1311px) {
+
+  /* 1px a mais que o breakpoint onde o hamburger aparece */
+  .navMobile {
+    display: none !important;
+    /* Use !important para garantir que sobrescreva */
+  }
 }
 
-/* botão do header na variante */
-.headerVariant .buttonHeader {
-  border-radius: 12px;
-  padding: 10px 18px;
-  background-color: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #e6f0ff;
-  transition: background-color 0.18s ease, transform 0.12s ease;
+@media screen and (max-width: 1310px) {
+  .navDesktop {
+    display: none;
+    /* Esconde a navegação desktop */
+  }
+
+  .hamburger {
+    display: block;
+    /* Mostra o hambúrguer */
+  }
+
+  .buttonHeader {
+    display: none;
+    /* Esconde o botão de cabeçalho */
+  }
 }
 
-.headerVariant .buttonHeader:hover {
-  background-color: rgba(255, 255, 255, 0.10);
-  transform: translateY(-1px);
-}
+@media screen and (max-width: 780px) {
+  .navMobile {
+    padding: 0 1rem;
+  }
 
-/* link interno do botão herda cor na variante */
-.headerVariant .buttonHeader a {
-  color: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  text-decoration: none;
+  .header {
+    padding: 0 1.8rem;
+  }
 }

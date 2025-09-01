@@ -24,3 +24,8 @@
   align-items: center;
 }
 
+@media screen and (max-width: 780px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}

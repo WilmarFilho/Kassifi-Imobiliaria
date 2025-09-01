@@ -19,3 +19,15 @@
 html {
     font-family: Poppins, sans-serif;
 }
+
+
+/* Remove efeito de destaque ao clicar/tocar em links e botões */
+a, button {
+  -webkit-tap-highlight-color: transparent; /* Safari / Chrome mobile */
+  outline: none; /* Remove outline de foco */
+}
+
+/* Caso queira remover o efeito de seleção de texto também */
+* {
+  user-select: none; /* opcional, só se não quiser selecionar texto */
+}
