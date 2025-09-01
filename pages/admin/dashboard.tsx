@@ -294,6 +294,44 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
     setImoveisFiltrados(filtrados);
   }, [imoveis]);
 
+  const [isMobileFallback, setIsMobileFallback] = useState(false); // Novo estado
+
+  // Detecta tamanho da tela
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileFallback(window.innerWidth < 999);
+    };
+
+    handleResize(); // verifica na montagem
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Se tela for menor que 999px, mostra fallback
+  if (isMobileFallback) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          textAlign: "center",
+          padding: 20,
+        }}
+      >
+        <div>
+          <h2>Atenção!</h2>
+          <p>
+            Para editar ou adicionar imóveis, por favor utilize uma tela maior
+            (desktop ou tablet em modo paisagem).
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.dashboard}>
 
@@ -719,4 +757,3 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return { props: { session, imoveis: imoveisSerialized, tags } };
 };
-
