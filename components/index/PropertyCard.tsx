@@ -8,7 +8,7 @@ interface PropertyCardProps {
     location: string;
     quartos: number;
     banheiros: number;
-    lancamento: boolean;
+    lancamento?: boolean;
     area: string;
     id?: string;
     busca?: boolean;
@@ -26,7 +26,7 @@ export default function PropertyCard({
     banheiros,
     area,
     id,
-    lancamento,
+    lancamento = false,
     busca = false,
     isAdmin = false,
     onGoClick,

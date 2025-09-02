@@ -1,6 +1,7 @@
 .card {
   background: rgba(0, 90, 170, 1);
   border-radius: 12px;
+  min-width: 200px;
   padding: 36px 24px;
   display: flex;
   flex: 1;
@@ -42,4 +43,25 @@
   font-size: 0.875rem; /* ~14px */
   margin-top: 8px;
   text-align: center;
+}
+
+@media screen and (max-width: 490) {
+  .card {
+    min-width: 150px;
+    padding: 16px;
+  }
+  .textContent {
+    gap: 0;
+    width: 100%;
+  }
+  .title {
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
+  }
+  .description {
+    font-size: .7rem;
+    width: 100%;
+    text-align: center;
+  }
 }

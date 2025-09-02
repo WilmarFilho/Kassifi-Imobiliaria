@@ -14,9 +14,16 @@
     overflow: hidden;
     height: 450px;
     flex: 1;
+    min-width: 230px;
 }
 
 .bgImage {
     height: 100%;
     width: 100%;
+}
+
+@media screen and (max-width: 490) {
+  .card {
+    height: 340px;
+  }
 }

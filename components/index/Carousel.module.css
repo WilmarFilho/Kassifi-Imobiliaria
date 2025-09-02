@@ -42,4 +42,8 @@
   right: -70px;
 }
 
-
+@media screen and (max-width: 780) {
+  .arrowLeft, .arrowRight {
+    display: none;
+  }
+}

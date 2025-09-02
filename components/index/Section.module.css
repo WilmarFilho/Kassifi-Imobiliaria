@@ -43,9 +43,25 @@
     font-size: 14px;
     color: rgba(113, 113, 113, 1);
     font-weight: 400;
+    text-wrap: balance;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
+}
+
+@media screen and (max-width: 780) {
+  .section {
+    padding: 0 2rem;
+  }
+  .button {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 490) {
+  .section {
+    gap: 20px;
+  }
 }
