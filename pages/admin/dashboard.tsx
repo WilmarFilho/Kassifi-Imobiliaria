@@ -5,17 +5,13 @@ import { GetServerSideProps } from "next";
 import { prisma } from "@/lib/prisma";
 import { useUploadMidias } from "@/hooks/useUpload";
 import Image from "next/image";
-import { ImovelFront } from "@/types/imovel";
+import { ImovelFront, Tag } from "@/types/imovel";
 import CustomCheckbox from "@/components/busca/CustomCheckbox";
 import Header from "@/components/Header";
 import FiltroImoveis from "@/components/busca/Filtro";
 import { Filtros } from "@/types/imovel";
 import PropertyCard from "@/components/index/PropertyCard";
-
-interface Tag {
-  id: string;
-  nome: string;
-}
+import { aplicaFiltro } from "@/utils/aplicaFiltro";
 
 interface DashboardProps {
   imoveis: ImovelFront[];
@@ -241,56 +237,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
   }, [modalOpen]);
 
   const aplicarFiltros = useCallback((filtros: Filtros) => {
-    let filtrados = imoveis; // imoveis aqui é a referência estável do estado original
-
-    // Filtros de texto
-    if (filtros.tipo) {
-      filtrados = filtrados.filter(i => i.tipo === filtros.tipo);
-    }
-
-    if (filtros.nome?.trim()) {
-      const nome = filtros.nome.toLowerCase();
-      filtrados = filtrados.filter(i => i.nome.toLowerCase().includes(nome));
-    }
-
-    if (filtros.endereco?.trim()) {
-      const endereco = filtros.endereco.toLowerCase();
-      filtrados = filtrados.filter(i => i.endereco.toLowerCase().includes(endereco));
-    }
-
-    if (filtros.cidade?.trim()) {
-      const cidade = filtros.cidade.toLowerCase();
-      filtrados = filtrados.filter(i => i.cidade.toLowerCase().includes(cidade));
-    }
-
-    if (filtros.estado?.trim()) {
-      const estado = filtros.estado.toLowerCase();
-      filtrados = filtrados.filter(i => i.estado.toLowerCase().includes(estado));
-    }
-
-    // Filtros numéricos
-    const { valorMin, valorMax, quartos, banheiros, vagas, metrosMin, metrosMax, lancamento, tags } = filtros;
-
-    if (valorMin !== undefined) filtrados = filtrados.filter(i => i.valor >= valorMin);
-    if (valorMax !== undefined) filtrados = filtrados.filter(i => i.valor <= valorMax);
-    if (quartos !== undefined) filtrados = filtrados.filter(i => i.quartos >= quartos);
-    if (banheiros !== undefined) filtrados = filtrados.filter(i => i.banheiros >= banheiros);
-    if (vagas !== undefined) filtrados = filtrados.filter(i => i.vagas >= vagas);
-    if (metrosMin !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados >= metrosMin);
-    if (metrosMax !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados <= metrosMax);
-
-    // Filtro booleano
-    if (lancamento) filtrados = filtrados.filter(i => i.lancamento);
-
-    // Filtro de tags
-    if (tags && tags.length > 0) {
-      console.log(tags)
-      console.log(filtrados)
-      filtrados = filtrados.filter(i =>
-        tags.every(tag => i.tags.some(t => t.toLowerCase() === tag.toLowerCase()))
-      );
-    }
-
+    const filtrados = aplicaFiltro(imoveis, filtros);
     setImoveisFiltrados(filtrados);
   }, [imoveis]);
 
@@ -462,12 +409,13 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                       <option value="" disabled>
                         Selecione o tipo
                       </option>
+                      <option value="">Tipo de Imóvel</option>
                       <option value="Casa">Casa</option>
                       <option value="Apartamento">Apartamento</option>
-                      <option value="Sobrado">Sobrado</option>
-                      <option value="Kitnet">Kitnet</option>
-                      <option value="Cobertura">Cobertura</option>
-                      <option value="Terreno">Terreno</option>
+                      <option value="Condomínio">Condomínio</option>
+                      <option value="Na Planta">Na Planta</option>
+                      <option value="Loteamento">Loteamento</option>
+                      <option value="Salas Comerciais">Salas Comerciais</option>
                     </select>
                   </div>
                 </div>

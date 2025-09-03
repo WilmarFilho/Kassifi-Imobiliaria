@@ -5,11 +5,12 @@ interface InfoCardProps {
     icon: string;
     title: string;
     description: string;
+    onClick: () => void;
 }
 
-export default function InfoCard({ icon, title, description }: InfoCardProps) {
+export default function InfoCard({ icon, title, description, onClick }: InfoCardProps) {
     return (
-        <div className={styles.card}>
+        <div className={styles.card} onClick={onClick}>
             <div className={styles.iconWrapper}>
                 <Image src={icon} alt={title} width={40} height={40} />
             </div>

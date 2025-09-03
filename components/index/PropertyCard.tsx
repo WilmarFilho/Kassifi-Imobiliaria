@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useRouter } from "next/router";
 import styles from "./PropertyCard.module.css";
 
 interface PropertyCardProps {
@@ -32,14 +33,25 @@ export default function PropertyCard({
     onGoClick,
     onDeleteClick,
 }: PropertyCardProps) {
+    const router = useRouter();
+
+    const handleGoClick = (e?: React.MouseEvent) => {
+
+        e?.stopPropagation();
+
+        if (onGoClick) {
+            onGoClick(id);
+        } else if (id) {
+            router.push(`/imovel/${id}`);
+        }
+    };
 
     return (
         <div
             className={`${busca ? styles.cardBusca : styles.card} ${isAdmin ? styles.admin : ""
                 }`}
-            onClick={() => onGoClick?.(id)}
+            onClick={() => handleGoClick()}
         >
-
             <div className={styles.imageWrapper}>
                 <Image
                     src={image}
@@ -70,7 +82,12 @@ export default function PropertyCard({
                         {quartos} Quartos
                     </p>
                     <p>
-                        <Image src="/assets/banheiro.svg" alt="banheiro-icon" width={22} height={22} />
+                        <Image
+                            src="/assets/banheiro.svg"
+                            alt="banheiro-icon"
+                            width={22}
+                            height={22}
+                        />
                         {banheiros} Banheiros
                     </p>
                     <p>
@@ -89,7 +106,7 @@ export default function PropertyCard({
                             width={22}
                             height={22}
                             className={styles.iconButton}
-                            onClick={() => onGoClick?.(id)}
+                            onClick={handleGoClick}
                         />
 
                         {isAdmin && (
@@ -100,7 +117,7 @@ export default function PropertyCard({
                                 height={27}
                                 className={styles.iconButton}
                                 onClick={(e) => {
-                                    e.stopPropagation(); 
+                                    e.stopPropagation();
                                     onDeleteClick?.(id);
                                 }}
                             />

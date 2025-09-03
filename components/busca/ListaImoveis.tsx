@@ -1,10 +1,10 @@
 import React from "react";
-import type { Imovel } from "@/types/imovel";
+import type { ImovelFront } from "@/types/imovel";
 import PropertyCard from "@/components/index/PropertyCard";
 import styles from "./ListaImoveis.module.css";
 
 type Props = {
-  imoveis: Imovel[];
+  imoveis: ImovelFront[];
 };
 
 export default function ListaImoveis({ imoveis }: Props) {
@@ -18,15 +18,17 @@ export default function ListaImoveis({ imoveis }: Props) {
 
       <div className={styles.headerListBusca}>
         <h2>Busca de Imóveis</h2>
-        <span>100 resultados</span>
+        <span>{imoveis.length} resultados</span>
       </div>
 
       <div className={styles.grid}>
         {imoveis.map((imovel) => (
           <PropertyCard
+            id={imovel.id}
+            lancamento={imovel.lancamento}
             key={imovel.id}
             busca={true}
-            image="/assets/imovel/001.png"
+            image={imovel.midias?.find(m => m.tipo === "capa")?.url || ""}
             price={`R$ ${imovel.valor.toLocaleString("pt-BR")}`}
             title={imovel.nome}
             location={`${imovel.endereco}, ${imovel.cidade} - ${imovel.estado}`}
@@ -41,4 +43,3 @@ export default function ListaImoveis({ imoveis }: Props) {
 
   );
 }
-

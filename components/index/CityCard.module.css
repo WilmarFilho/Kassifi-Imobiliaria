@@ -15,6 +15,7 @@
     height: 450px;
     flex: 1;
     min-width: 230px;
+    cursor: pointer;
 }
 
 .bgImage {

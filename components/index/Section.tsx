@@ -20,7 +20,7 @@ export default function Section({ title, subtitle, link, children }: SectionProp
                 </div>
                 {link && (
                     <div className={styles.button}>
-                        <Link href="/">Todos <Image src="/assets/arrow.svg" alt="arrow-icon" width={18} height={18} /> </Link>
+                        <Link href={link}>Todos <Image src="/assets/arrow.svg" alt="arrow-icon" width={18} height={18} /> </Link>
                     </div>
                 )}
             </div>

@@ -61,10 +61,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ];
 
       for (const field of requiredFields) {
-        if (!data[field] || data[field].toString().trim() === "") {
+        if (
+          data[field] === undefined ||
+          data[field] === null ||
+          (typeof data[field] === "string" && data[field].trim() === "")
+        ) {
           return res.status(400).json({ error: `Campo obrigatório ausente: ${field}` });
         }
       }
+
 
       const parsedData = {
         ...data,

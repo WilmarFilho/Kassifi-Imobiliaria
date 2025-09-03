@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import type { Filtros } from "@/types/imovel";
+import type { Filtros, FiltrosIniciais, Tag } from "@/types/imovel";
 import styles from "./Filtro.module.css";
 import CustomCheckbox from "./CustomCheckbox";
 
-interface Tag {
-  id: string;
-  nome: string;
-}
-
 type Props = {
-  onFilterChange: (filtros: Filtros) => void;
+  onFilterChange: (f: Filtros) => void;
   tags: Tag[];
+  filtrosIniciais?: FiltrosIniciais;
 };
 
-export default function FiltroImoveis({ onFilterChange, tags }: Props) {
+export default function FiltroImoveis({ onFilterChange, tags, filtrosIniciais }: Props) {
   const [filtros, setFiltros] = useState<Filtros>({
+    tipo: filtrosIniciais?.tipo || "",
+    cidade: filtrosIniciais?.cidade || "",
     valorMin: undefined,
     valorMax: undefined,
     metrosMin: undefined,
@@ -73,9 +71,12 @@ export default function FiltroImoveis({ onFilterChange, tags }: Props) {
           onChange={e => setField("tipo", e.target.value || undefined)}
         >
           <option value="">Tipo de Imóvel</option>
-          <option value="Apartamento">Apartamento</option>
           <option value="Casa">Casa</option>
-          <option value="Sala Comercial">Sala Comercial</option>
+          <option value="Apartamento">Apartamento</option>
+          <option value="Condomínio">Condomínio</option>
+          <option value="Na Planta">Na Planta</option>
+          <option value="Loteamento">Loteamento</option>
+          <option value="Salas Comerciais">Salas Comerciais</option>
         </select>
       </label>
 
