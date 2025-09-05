@@ -1,35 +1,35 @@
 .main {
-    display: flex;
-    flex-direction: column;
-    gap: 4rem;
-    margin-bottom: 6rem;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  margin-bottom: 6rem;
+  justify-content: center;
+  align-items: center;
 }
 
 
 .heroSection {
-    background-image: url('/assets/02.webp');
-    height: 700px;
-    width: 100%;
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: start;
-    color: #FFF;
-    gap: 8rem;
-    font-weight: 600;
-    font-size: 44px;
-    flex-direction: column;
-    padding: 0 0 0 9em;
+  background-image: url('/assets/02.webp');
+  height: 700px;
+  width: 100%;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  color: #FFF;
+  gap: 8rem;
+  font-weight: 600;
+  font-size: 44px;
+  flex-direction: column;
+  padding: 0 0 0 9em;
 }
 
 .CardsContainer {
-    display: flex;
-    gap: 2rem;
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: start;
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: start;
 }
 
 .partnerLogo {
@@ -50,10 +50,11 @@
   background: #fff;
   padding: 8px 12px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.searchIcon, .filterIcon {
+.searchIcon,
+.filterIcon {
   cursor: pointer;
 }
 
@@ -61,7 +62,7 @@
   flex: 1;
   border: none;
   outline: none;
-  padding: 10px 8px 0 8px ;
+  padding: 10px 8px 0 8px;
   font-size: 16px;
 }
 
@@ -79,7 +80,7 @@
 .filterMenu {
   position: absolute;
   background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   margin-top: 80px;
   z-index: 100;
@@ -127,6 +128,10 @@
   .heroSection {
     font-size: 28px;
   }
+
+  .searchBar {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 490) {
@@ -134,9 +139,11 @@
     font-size: 22px;
     height: 450px;
   }
+
   .CardsContainer {
     gap: .6rem;
   }
+
   .main {
     gap: 2rem;
   }
