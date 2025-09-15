@@ -12,6 +12,7 @@ import { ImovelFront } from "@/types/imovel";
 import CityCard from "@/components/index/CityCard";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import PartnerTicker from "@/components/index/PartnerTicker";
 
 interface HomeProps {
   imoveisSerialized: ImovelFront[];
@@ -215,35 +216,45 @@ export default function HomePage({ imoveisSerialized: imoveis, countsByCity, cou
         )}
 
         {/* Encontre imóveis por cidade */}
-        {Object.keys(countsByCity).length > 0 && (
-          <Section title="Encontre imóveis por cidade" subtitle="Selecione a cidade ideal e descubra imóveis que combinam com seu estilo de vida." link="/busca">
-            <div className={styles.CardsContainer}>
-              {countsByCity["Goiânia"] > 0 && (
-                <CityCard image="/assets/goiania.webp" city="Goiânia" description={`${countsByCity["Goiânia"]} Propriedades`} onClick={() => handleClickCidade("Goiânia")} />
-              )}
-              {countsByCity["Aparecida de Goiânia"] > 0 && (
-                <CityCard image="/assets/apgoiania.webp" city="Ap. de Goiânia" description={`${countsByCity["Aparecida de Goiânia"]} Propriedades`} onClick={() => handleClickCidade("Aparecida de Goiânia")} />
-              )}
-              {countsByCity["Senador Canedo"] > 0 && (
-                <CityCard image="/assets/senador.webp" city="Senador Canedo" description={`${countsByCity["Senador Canedo"]} Propriedades`} onClick={() => handleClickCidade("Senador Canedo")} />
-              )}
-              {countsByCity["Goianira"] > 0 && (
-                <CityCard image="/assets/goianira.webp" city="Goianira" description={`${countsByCity["Goianira"]} Propriedades`} onClick={() => handleClickCidade("Goianira")} />
-              )}
-            </div>
-          </Section>
-        )}
+
+        <Section title="Encontre imóveis por cidade" subtitle="Selecione a cidade ideal e descubra imóveis que combinam com seu estilo de vida." link="/busca">
+          <div className={styles.CardsContainer}>
+
+            <CityCard
+              image="/assets/goiania.webp"
+              city="Goiânia"
+              description={`${countsByCity["Goiânia"] ?? 0} Propriedades`}
+              onClick={() => handleClickCidade("Goiânia")}
+            />
+
+            <CityCard
+              image="/assets/apgoiania.webp"
+              city="Ap. de Goiânia"
+              description={`${countsByCity["Aparecida de Goiânia"] ?? 0} Propriedades`}
+              onClick={() => handleClickCidade("Aparecida de Goiânia")}
+            />
+
+            <CityCard
+              image="/assets/senador.webp"
+              city="Senador Canedo"
+              description={`${countsByCity["Senador Canedo"] ?? 0} Propriedades`}
+              onClick={() => handleClickCidade("Senador Canedo")}
+            />
+
+            <CityCard
+              image="/assets/goianira.webp"
+              city="Goianira"
+              description={`${countsByCity["Goianira"] ?? 0} Propriedades`}
+              onClick={() => handleClickCidade("Goianira")}
+            />
+
+          </div>
+        </Section>
+
 
         {/* Nossos parceiros */}
         <Section title="Nossos parceiros" subtitle="Contamos com a colaboração de grandes marcas para tornar seus sonhos realidade.">
-          <div className={styles.CardsContainer}>
-            <Image src="/assets/opus.webp" alt="Partner 1" width={150} height={80} className={styles.partnerLogo} />
-            <Image src="/assets/ebm.webp" alt="Partner 2" width={150} height={80} className={styles.partnerLogo} />
-            <Image src="/assets/city.webp" alt="Partner 3" width={150} height={80} className={styles.partnerLogo} />
-            <Image src="/assets/fgr.webp" alt="Partner 4" width={150} height={80} className={styles.partnerLogo} />
-            <Image src="/assets/gpl.webp" alt="Partner 5" width={150} height={80} className={styles.partnerLogo} />
-            <Image src="/assets/dinamica.webp" alt="Partner 6" width={150} height={80} className={styles.partnerLogo} />
-          </div>
+          <PartnerTicker />
         </Section>
       </main>
       <Footer />
@@ -298,3 +309,5 @@ export const getServerSideProps: GetServerSideProps = async () => {
     },
   };
 };
+
+

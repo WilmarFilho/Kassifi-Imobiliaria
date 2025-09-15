@@ -10,18 +10,19 @@
 
 .heroSection {
   background-image: url('/assets/02.webp');
-  height: 700px;
+  height: 450px;
   width: 100%;
   background-size: cover;
+  background-position: bottom;
   display: flex;
   justify-content: center;
   align-items: start;
   color: #FFF;
-  gap: 8rem;
+  justify-content: space-between;
   font-weight: 600;
-  font-size: 44px;
+  font-size: 38px;
   flex-direction: column;
-  padding: 0 0 0 9em;
+  padding: 4rem 0 4rem 6rem;
 }
 
 .CardsContainer {
@@ -33,11 +34,9 @@
 }
 
 .partnerLogo {
-  max-width: 150px;
-  width: 100%;
-  flex: 1;
-  display: flex;
-  height: auto;
+  max-width: 250px;
+  width: 200px;
+  height: 80px;
   object-fit: contain;
 }
 
@@ -108,36 +107,70 @@
 }
 
 
-@media screen and (max-width: 1200px) {
-  .heroSection {
-    height: 500px;
-    padding: 0 0 0 3em;
-    font-size: 40px;
-  }
+.tickerWrapper {
+  overflow: hidden;
+  width: 100%;
+  padding: 20px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  position: relative;
 }
+
+.tickerTrack {
+  display: flex;
+  width: 200%;
+  /* duas cópias ocupando 200% */
+}
+
+.tickerGroup {
+  display: flex;
+  flex: 0 0 50%;
+  /* cada grupo ocupa metade */
+  justify-content: space-around;
+}
+
+.logoItem {
+  flex: 0 0 auto;
+  margin: 0 10px;
+}
+
+
+
 
 @media screen and (max-width: 780) {
   .heroSection {
-    height: 480px;
-    padding: 0 0 0 1em;
     font-size: 32px;
+    padding: 3rem 0 3rem 1.8rem;
+
   }
 }
 
 @media screen and (max-width: 600) {
   .heroSection {
     font-size: 28px;
+    height: 350px;
   }
 
   .searchBar {
     display: none;
   }
+
+  .partnerLogo {
+    width: 150px;
+    height: 60px;
+  }
+
 }
 
 @media screen and (max-width: 490) {
   .heroSection {
     font-size: 22px;
-    height: 450px;
+    height: 300px;
+  }
+
+  .partnerLogo {
+    width: 100px;
+    height: 40px;
   }
 
   .CardsContainer {
