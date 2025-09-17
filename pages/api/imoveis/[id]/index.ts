@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]";
 
+// Regex para validar números: aceita dígitos, pontos e vírgulas, qualquer combinação
+const numeroValido = (str: string) => /^[0-9.,]+$/.test(str);
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
@@ -15,7 +18,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // -------------------- UPDATE --------------------
     if (req.method === "PUT") {
       const {
         valor,
@@ -28,17 +30,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ...rest
       } = req.body;
 
+      // Valida strings numéricas
+      if (!numeroValido(valor)) {
+        return res.status(400).json({ error: "Valor inválido" });
+      }
+      if (!numeroValido(metrosQuadrados)) {
+        return res.status(400).json({ error: "Área inválida" });
+      }
+
       const imovel = await prisma.imovel.update({
         where: { id },
         data: {
           ...rest,
-          valor: Number(valor),
+          valor: valor,
           quartos: Number(quartos || 0),
           banheiros: Number(banheiros || 0),
           vagas: Number(vagas || 0),
-          metrosQuadrados: Number(metrosQuadrados || 0),
+          metrosQuadrados: metrosQuadrados,
           lancamento: Boolean(lancamento),
-          // Atualiza apenas tags
           tags: Array.isArray(tags)
             ? {
                 deleteMany: {},
@@ -54,7 +63,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json(imovel);
     }
 
-    // -------------------- DELETE --------------------
     if (req.method === "DELETE") {
       await prisma.imovelTag.deleteMany({ where: { imovelId: id } });
       await prisma.midia.deleteMany({ where: { imovelId: id } });

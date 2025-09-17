@@ -140,7 +140,7 @@ export default function Imovel({ imoveisSerialized }: Props) {
             <button onClick={() => openLightbox("fotos")}>
               <Image src="/assets/image.svg" alt="image-icon" width={22} height={22} /> Fotos
             </button>
-            <button onClick={() => openLightbox("videos")}>
+            <button className={styles.buttonPin} onClick={() => openLightbox("videos")}>
               <Image src="/assets/play.svg" alt="play-icon" width={22} height={22} /> Vídeos
             </button>
             <button

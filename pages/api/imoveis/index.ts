@@ -4,6 +4,9 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { ImovelFront } from "@/types/imovel";
 
+// Regex para validar números: aceita dígitos, pontos e vírgulas, qualquer combinação
+const numeroValido = (str: string) => /^[0-9.,]+$/.test(str);
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
@@ -39,7 +42,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })),
       }));
 
-
       return res.status(200).json(imoveisSerialized);
     }
 
@@ -70,36 +72,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
+      // Valida strings numéricas
+      if (!numeroValido(data.valor)) {
+        return res.status(400).json({ error: "Valor inválido" });
+      }
+      if (!numeroValido(data.metrosQuadrados)) {
+        return res.status(400).json({ error: "Área inválida" });
+      }
 
       const parsedData = {
         ...data,
-        valor: Number(data.valor),
+        valor: data.valor,
+        metrosQuadrados: data.metrosQuadrados,
         quartos: Number(data.quartos || 0),
         banheiros: Number(data.banheiros || 0),
         vagas: Number(data.vagas || 0),
-        metrosQuadrados: Number(data.metrosQuadrados || 0),
         lancamento: Boolean(data.lancamento),
       };
 
       const imovel = await prisma.imovel.create({
         data: {
           ...parsedData,
-          // Cria tags associadas
           tags: parsedData.tags?.length
             ? {
-              create: parsedData.tags.map((tagId: string) => ({
-                tag: { connect: { id: tagId } },
-              })),
-            }
+                create: parsedData.tags.map((tagId: string) => ({
+                  tag: { connect: { id: tagId } },
+                })),
+              }
             : undefined,
-          // Cria mídias associadas
           midias: parsedData.midias?.length
             ? {
-              create: parsedData.midias.map((m: { url: string; tipo: string }) => ({
-                url: m.url,
-                tipo: m.tipo,
-              })),
-            }
+                create: parsedData.midias.map((m: { url: string; tipo: string }) => ({
+                  url: m.url,
+                  tipo: m.tipo,
+                })),
+              }
             : undefined,
         },
         include: { tags: { include: { tag: true } }, midias: true },

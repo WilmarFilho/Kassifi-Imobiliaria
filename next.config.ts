@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
+  images:
+   {
     remotePatterns: [
       {
         protocol: 'http',

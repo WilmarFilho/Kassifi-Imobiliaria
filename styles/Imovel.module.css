@@ -180,7 +180,7 @@
 .rowCTA button a {
     color: #FFF;
     text-decoration: none;
-}   
+}
 
 .boxLateral {
     position: absolute;
@@ -223,6 +223,14 @@
     background: #094f9c;
 }
 
+@media screen and (max-width: 1220px) {
+
+    .boxLateral {
+        display: none;
+    }
+
+}
+
 @media screen and (max-width: 920px) {
 
     .capa,
@@ -236,6 +244,28 @@
 
     .hero {
         height: 400px;
+    }
+
+    .tags,
+    .descricao,
+    .info,
+    .actions,
+    .features {
+        width: 80%;
+    }
+}
+
+@media screen and (max-width: 780) {
+    .mainInternaImovel {
+        padding: 1em;
+    }
+
+    .content {
+        padding: 0 12px;
+    }
+
+    .mainInternaImovel h2 {
+        font-size: 24px;
     }
 }
 
@@ -253,5 +283,21 @@
 
     .hero {
         height: 350px;
+    }
+
+    .mainInternaImovel h2 {
+        font-size: 20px;
+    }
+}
+
+
+@media screen and (max-width: 520px) {
+    .features {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .buttonPin {
+        display: none !important;
     }
 }

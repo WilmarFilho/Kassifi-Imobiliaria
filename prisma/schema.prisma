@@ -20,14 +20,14 @@ model Imovel {
   tipo            String
   nome            String
   lancamento      Boolean
-  valor           Float
+  valor           String
   cidade          String
   estado          String
   endereco        String
   quartos         Int
   banheiros       Int
   vagas           Int
-  metrosQuadrados Int
+  metrosQuadrados String
   descricao       String
   criadoEm        DateTime    @default(now())
   tags            ImovelTag[]
