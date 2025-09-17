@@ -100,7 +100,7 @@ export default function Fale() {
                 </li>
                 <li className={styles.infoItem}>
                   <span className={styles.icon}> <Image src='/assets/email.svg' alt='email-icon' width={22} height={22} /></span>
-                  <p>email@gmail.com</p>
+                  <p>hebert@kassifi.com.br</p>
                 </li>
               </ul>
 
@@ -114,7 +114,7 @@ export default function Fale() {
                 />
                 <a
                   className={styles.mapButton}
-                  href="https://maps.google.com/?q=Av.+T-15,+225,+Setor+Bueno,+Goi%C3%A2nia"
+                  href="https://maps.app.goo.gl/E4dt6rPSK3bAorF89"
                   target="_blank"
                   rel="noreferrer"
                 >

@@ -9,6 +9,8 @@ import Image from 'next/image';
 import { prisma } from '../../lib/prisma';
 import styles from '@/styles/Imovel.module.css'
 import { ImovelFront } from '@/types/imovel';
+import { useState } from 'react';
+import Lightbox from '@/components/busca/Lightbox';
 
 type Props = {
   imoveisSerialized: ImovelFront[];
@@ -20,21 +22,38 @@ export default function Imovel({ imoveisSerialized }: Props) {
   const router = useRouter();
   const { id } = router.query;
 
-  // Busca imóvel atual pelo ID
+  // Estados do lightbox SEMPRE no topo
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxMidias, setLightboxMidias] = useState<{ url: string; tipo: string }[]>([]);
+
+  // Busca imóvel atual
   const imovel = imoveisSerialized.find((i) => i.id === id);
 
   if (!imovel) {
     return <p>Imóvel não encontrado.</p>;
   }
 
-  // Defina relacionados
+  // Relacionados
   const relacionados = imoveisSerialized.filter(
     (i) => i.tipo === imovel.tipo && i.id !== imovel.id
   );
 
+  // Abre o lightbox filtrando mídias
+  function openLightbox(tipo: 'fotos' | 'videos') {
+    if (imovel) {
+      console.log(imovel.midias);
+      const filtradas = imovel.midias.filter((m) =>
+        tipo === "fotos" ? m.tipo === "foto" || m.tipo === "capa" : m.tipo === "video"
+      );
+      setLightboxMidias(filtradas);
+      setLightboxIndex(0);
+      setLightboxOpen(true);
+    }
+  }
+
   return (
     <>
-
       <Header />
 
       {/* Hero com capa + galeria */}
@@ -53,7 +72,7 @@ export default function Imovel({ imoveisSerialized }: Props) {
             <div className={styles.galeria}>
               {imovel.midias
                 .filter((m) => m.tipo !== "capa")
-                .slice(0, 6) // garante no máximo 6
+                .slice(0, 6)
                 .map((m, idx) => (
                   <div key={idx} className={styles.thumbWrapper}>
                     <Image
@@ -80,17 +99,13 @@ export default function Imovel({ imoveisSerialized }: Props) {
         )}
       </section>
 
-
       <main className={styles.mainInternaImovel}>
-
         <div className={styles.content}>
-
           <div className={styles.boxLateral}>
-
             <div className={styles.rowCTA}>
               <h2>{imovel.nome}</h2>
               <button>
-                Agende sua visita
+                <a href='https://wa.link/rnhz0q'>Agende sua visita</a>
                 <Image
                   src="/assets/whats.svg"
                   alt="icon de whatsapp"
@@ -111,28 +126,30 @@ export default function Imovel({ imoveisSerialized }: Props) {
               />
               <a
                 className={styles.mapButton}
-                href="https://maps.google.com/?q=Av.+T-15,+225,+Setor+Bueno,+Goi%C3%A2nia"
+                href="https://maps.app.goo.gl/E4dt6rPSK3bAorF89"
                 target="_blank"
                 rel="noreferrer"
               >
                 <Image src='/assets/pin.svg' alt='pincontato-icon' width={22} height={22} />  Localização
               </a>
             </div>
-
-
           </div>
 
           {/* Botões de ações */}
           <div className={styles.actions}>
-            <button> <Image src="/assets/image.svg" alt="image-icon" width={22} height={22} /> Fotos</button>
-            <button> <Image src="/assets/play.svg" alt="play-icon" width={22} height={22} /> Vídeos</button>
+            <button onClick={() => openLightbox("fotos")}>
+              <Image src="/assets/image.svg" alt="image-icon" width={22} height={22} /> Fotos
+            </button>
+            <button onClick={() => openLightbox("videos")}>
+              <Image src="/assets/play.svg" alt="play-icon" width={22} height={22} /> Vídeos
+            </button>
             <button
               onClick={() =>
                 window.open(
                   `https://www.google.com/maps?q=${encodeURIComponent(
                     `${imovel.endereco}, ${imovel.cidade} - ${imovel.estado}`
                   )}`,
-                  '_blank'
+                  "_blank"
                 )
               }
             >
@@ -150,22 +167,10 @@ export default function Imovel({ imoveisSerialized }: Props) {
           </div>
 
           <div className={styles.features}>
-            <p>
-              <Image src="/assets/quarto.svg" alt="quarto-icon" width={22} height={22} />
-              {imovel.quartos} Quartos
-            </p>
-            <p>
-              <Image src="/assets/banheiro.svg" alt="banheiro-icon" width={22} height={22} />
-              {imovel.banheiros} Banheiros
-            </p>
-            <p>
-              <Image src="/assets/metros.svg" alt="metros-icon" width={22} height={22} />
-              {imovel.metrosQuadrados} m²
-            </p>
-            <p>
-              <Image src="/assets/garage.svg" alt="garage-icon" width={32} height={32} />
-              {imovel.vagas} Vagas
-            </p>
+            <p><Image src="/assets/quarto.svg" alt="quarto-icon" width={22} height={22} /> {imovel.quartos} Quartos</p>
+            <p><Image src="/assets/banheiro.svg" alt="banheiro-icon" width={22} height={22} /> {imovel.banheiros} Banheiros</p>
+            <p><Image src="/assets/metros.svg" alt="metros-icon" width={22} height={22} /> {imovel.metrosQuadrados} m²</p>
+            <p><Image src="/assets/garage.svg" alt="garage-icon" width={32} height={32} /> {imovel.vagas} Vagas</p>
           </div>
 
           {/* Descrição */}
@@ -179,9 +184,7 @@ export default function Imovel({ imoveisSerialized }: Props) {
             <h2>Informações adicionais</h2>
             <div className={styles.wrapperTags}>
               {imovel.tags.map((tag) => (
-                <button key={tag} className={styles.tagButton}>
-                  {tag}
-                </button>
+                <button key={tag} className={styles.tagButton}>{tag}</button>
               ))}
             </div>
           </div>
@@ -230,11 +233,17 @@ export default function Imovel({ imoveisSerialized }: Props) {
             </Carousel>
           </Section>
         )}
-
       </main>
 
       <Footer />
 
+      {/* Lightbox */}
+      <Lightbox
+        midias={lightboxMidias}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </>
   );
 }
@@ -263,11 +272,10 @@ export const getServerSideProps: GetServerSideProps = async () => {
     metrosQuadrados: i.metrosQuadrados,
     descricao: i.descricao,
     criadoEm: i.criadoEm.toISOString(),
-    tags: i.tags.map((t) => t.tag.nome), // aqui já mando o nome direto
+    tags: i.tags.map((t) => t.tag.nome),
     midias: i.midias.map((m) => ({ url: m.url, tipo: m.tipo })),
   }));
 
-  // 🔹 Contadores dinâmicos
   const countsByType: Record<string, number> = {};
   const countsByCity: Record<string, number> = {};
 

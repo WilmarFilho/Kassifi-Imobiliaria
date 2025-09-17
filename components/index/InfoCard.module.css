@@ -48,7 +48,7 @@
 
 @media screen and (max-width: 490) {
   .card {
-    min-width: 150px;
+    min-width: 130px;
     padding: 16px;
   }
   .textContent {

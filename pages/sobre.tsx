@@ -6,7 +6,7 @@ import styles from "../styles/Sobre.module.css";
 export default function Sobre() {
   return (
     <>
-      <Header variant={false} />
+      <Header variant={true} />
       <main className={styles.mainSobre}>
         <div className={styles.textSobreWrapper}>
           <h1 className={styles.titleSobre}>Sobre a Kassif Imóveis</h1>

@@ -67,7 +67,7 @@ export default function Header({ variant = false, admin = false, onAddImovel }: 
 
           {/* BOTÃO HEADER DESKTOP */}
           <button className={styles.buttonHeader}>
-            <Link href="/fale-conosco">
+            <Link href="https://wa.link/rnhz0q" target="_blank" rel="noopener noreferrer" >
               Fale Conosco {!variant && <Image src="/assets/arrow.svg" alt="arrow-icon" width={18} height={18} />}
             </Link>
           </button>

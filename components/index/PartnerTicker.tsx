@@ -3,12 +3,12 @@ import Image from "next/image";
 import styles from "../../styles/Index.module.css";
 
 const logos = [
-  "/assets/opus.webp",
-  "/assets/ebm.webp",
   "/assets/city.webp",
+  "/assets/dinamica.webp",
+  "/assets/ebm.webp",
   "/assets/fgr.webp",
   "/assets/gpl.webp",
-  "/assets/dinamica.webp",
+  "/assets/opus.webp",
 ];
 
 export default function PartnerTicker() {
@@ -16,12 +16,6 @@ export default function PartnerTicker() {
     <div className={styles.tickerWrapper}>
       <motion.div
         className={styles.tickerTrack}
-        animate={{ x: ["0%", "-50%"] }} // só metade, pois duplicamos
-        transition={{
-          repeat: Infinity,
-          ease: "linear",
-          duration: 16, // ajuste a velocidade
-        }}
       >
         {/* dois blocos iguais, lado a lado */}
         {[0, 1].map((i) => (

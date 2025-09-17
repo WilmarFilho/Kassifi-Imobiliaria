@@ -54,12 +54,12 @@ export default function HomePage({ imoveisSerialized: imoveis, countsByCity, cou
 
   return (
     <>
-      <Header variant={false} />
+      <Header variant={true} />
       <main className={styles.main}>
         <section className={styles.heroSection}>
-          <div>
+          <div className={styles.heroText}>
             <h1>Escolha viver bem.</h1>
-            <h2>Escolha Kassi.</h2>
+            <h2>Escolha Kassifi.</h2>
           </div>
 
           {/* Barra de busca customizada */}
@@ -79,14 +79,14 @@ export default function HomePage({ imoveisSerialized: imoveis, countsByCity, cou
             />
 
             {/* Ícone de filtro */}
-            <div
+
+            {/* <div
               className={`${styles.filterIcon} ${selectedType ? styles.filterActive : ""}`}
               onClick={() => setShowFilter(!showFilter)}
             >
+            <div>
               <Image src="/assets/filter.svg" alt="Filtrar" width={24} height={24} />
-            </div>
-
-
+            </div>*/}
 
             {/* Botão de busca */}
             <button

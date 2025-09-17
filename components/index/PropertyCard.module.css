@@ -133,6 +133,9 @@
   .card {
     width: 250px;
   }
+  .cardBusca {
+    height: 355px;
+  }
   .imgImovel {
     height: 200px;
   }

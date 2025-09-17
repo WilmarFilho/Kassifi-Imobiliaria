@@ -25,11 +25,17 @@ export default function Footer() {
 
         <div className={styles.columnSmallTopSection}>
           <span>Siga nossas redes</span>
-          <div className={styles.socialMediaIcons}>
-            <Image src="/assets/facebook.svg" alt="facebook-icon" width={30} height={30} />
-            <Image src="/assets/insta.svg" alt="instagram-icon" width={30} height={30} />   
-            <Image src="/assets/linkedin.svg" alt="linkedin-icon" width={30} height={30} />
-          </div>
+            <div className={styles.socialMediaIcons}>
+            <Link href="https://wa.link/rnhz0q" target="_blank" rel="noopener noreferrer">
+              <Image src="/assets/facebook.svg" alt="facebook-icon" width={30} height={30} />
+            </Link>
+            <Link href="https://wa.link/rnhz0q" target="_blank" rel="noopener noreferrer">
+              <Image src="/assets/insta.svg" alt="instagram-icon" width={30} height={30} />
+            </Link>
+            <Link href="https://wa.link/rnhz0q" target="_blank" rel="noopener noreferrer">
+              <Image src="/assets/linkedin.svg" alt="linkedin-icon" width={30} height={30} />
+            </Link>
+            </div>
         </div>
 
       </section>

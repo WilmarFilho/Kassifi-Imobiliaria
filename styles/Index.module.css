@@ -19,10 +19,16 @@
   align-items: start;
   color: #FFF;
   justify-content: space-between;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 38px;
   flex-direction: column;
   padding: 4rem 0 4rem 6rem;
+}
+
+.heroText h1,
+.heroText h2 {
+  font-size: 50px;
+  font-weight: 600 !important;
 }
 
 .CardsContainer {
@@ -44,7 +50,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 60%;
+  width: 35%;
   margin-top: 16px;
   background: #fff;
   padding: 8px 12px;
@@ -134,14 +140,24 @@
   margin: 0 10px;
 }
 
+@media screen and (max-width: 980) {
+  .searchBar {
+    width: 50%;
 
+  }
+}
 
 
 @media screen and (max-width: 780) {
   .heroSection {
     font-size: 32px;
-    padding: 3rem 0 3rem 1.8rem;
+    padding: 3rem 0 3rem 1rem;
 
+  }
+
+  .heroText h1,
+  .heroText h2 {
+    font-size: 40px;
   }
 }
 
@@ -160,12 +176,22 @@
     height: 60px;
   }
 
+  .heroText h1,
+  .heroText h2 {
+    font-size: 32px;
+  }
+
 }
 
 @media screen and (max-width: 490) {
   .heroSection {
-    font-size: 22px;
+    font-size: 32px;
     height: 300px;
+  }
+
+  .heroText h1,
+  .heroText h2 {
+    font-size: 28px;
   }
 
   .partnerLogo {
@@ -174,10 +200,10 @@
   }
 
   .CardsContainer {
-    gap: .6rem;
+    gap: .3rem;
   }
 
   .main {
-    gap: 2rem;
+    gap: 1rem;
   }
 }

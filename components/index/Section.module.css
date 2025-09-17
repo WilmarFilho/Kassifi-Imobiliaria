@@ -53,7 +53,7 @@
 
 @media screen and (max-width: 780) {
   .section {
-    padding: 0 2rem;
+    padding: 0 1rem;
   }
   .button {
     display: none;

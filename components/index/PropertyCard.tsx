@@ -64,7 +64,6 @@ export default function PropertyCard({
 
                 {lancamento && (
                     <span className={styles.tag}>
-                        <Image src="/assets/raio.svg" alt="raio-icon" width={22} height={22} />
                         Lançamento
                     </span>
                 )}
