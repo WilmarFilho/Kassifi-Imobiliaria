@@ -17,7 +17,7 @@ export function useUploadMidias() {
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch("http://127.0.0.1:8000/api/upload", {
+        const res = await fetch("https://api.kassifi.com.br/api/upload", {
           method: "POST",
           body: formData,
         });
@@ -30,7 +30,7 @@ export function useUploadMidias() {
         uploaded.push({ url: data.path, tipo });
       }
     } catch (e) {
-      
+
     } finally {
       setLoading(false);
     }

@@ -16,7 +16,7 @@ export default function Header({ variant = false, admin = false, onAddImovel }: 
   const [menuOpen, setMenuOpen] = useState(false);
 
   const headerClass = `${styles.header} ${variant ? styles.headerVariant : ""}`.trim();
-  const logoSrc = variant ? "/assets/logovariant.svg" : "/assets/logo.svg";
+  const logoSrc = variant ? "/assets/logovariantfooter.svg" : "/assets/logovariantfooter.svg";
 
   const links = [
     { href: "/", label: "Início" },

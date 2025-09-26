@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images:
-   {
+  images: {
     remotePatterns: [
       {
         protocol: 'http',
@@ -9,7 +8,21 @@ const nextConfig = {
         port: '8000',
         pathname: '/storage/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.kassifi.com.br',
+        pathname: '/storage/uploads/**',
+      },
     ],
+  },
+  trailingSlash: false,
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: '/',
+      },
+    ];
   },
 };
 

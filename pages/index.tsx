@@ -137,7 +137,7 @@ export default function HomePage({ imoveisSerialized: imoveis, countsByCity, cou
                   key={imovel.id}
                   id={imovel.id}
                   image={imovel.midias?.find(m => m.tipo === "capa")?.url || ""}
-                  price={`${imovel.valor.toLocaleString("pt-BR")}`}
+                  price={`R$ ${imovel.valor}`}
                   title={imovel.nome}
                   location={`${imovel.endereco}, ${imovel.cidade} - ${imovel.estado}`}
                   quartos={imovel.quartos}
@@ -159,7 +159,7 @@ export default function HomePage({ imoveisSerialized: imoveis, countsByCity, cou
                   key={imovel.id}
                   id={imovel.id}
                   image={imovel.midias?.find(m => m.tipo === "capa")?.url || ""}
-                  price={`${imovel.valor.toLocaleString("pt-BR")}`}
+                  price={`R$ ${imovel.valor}`}
                   title={imovel.nome}
                   location={`${imovel.endereco}, ${imovel.cidade} - ${imovel.estado}`}
                   quartos={imovel.quartos}
@@ -181,7 +181,7 @@ export default function HomePage({ imoveisSerialized: imoveis, countsByCity, cou
                   key={imovel.id}
                   id={imovel.id}
                   image={imovel.midias?.find(m => m.tipo === "capa")?.url || ""}
-                  price={`${imovel.valor.toLocaleString("pt-BR")}`}
+                  price={`R$ ${imovel.valor}`}
                   title={imovel.nome}
                   location={`${imovel.endereco}, ${imovel.cidade} - ${imovel.estado}`}
                   quartos={imovel.quartos}
@@ -203,7 +203,7 @@ export default function HomePage({ imoveisSerialized: imoveis, countsByCity, cou
                   key={imovel.id}
                   id={imovel.id}
                   image={imovel.midias?.find(m => m.tipo === "capa")?.url || ""}
-                  price={`${imovel.valor.toLocaleString("pt-BR")}`}
+                  price={`R$ ${imovel.valor}`}
                   title={imovel.nome}
                   location={`${imovel.endereco}, ${imovel.cidade} - ${imovel.estado}`}
                   quartos={imovel.quartos}

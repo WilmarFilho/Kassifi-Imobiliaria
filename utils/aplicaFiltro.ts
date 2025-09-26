@@ -9,8 +9,34 @@ function normalizarTexto(txt: string) {
     .toLowerCase();
 }
 
+// 🔹 Converte string de número (pt-BR ou en-US) para float
+function parseNumero(valor: string | number): number {
+  if (typeof valor === "number") return valor;
+  if (!valor) return 0;
+
+  let v = valor.trim();
+
+  // Se tiver vírgula e ponto -> supõe formato brasileiro (12.000,99)
+  if (v.includes(",") && v.includes(".")) {
+    v = v.replace(/\./g, "");   // remove pontos de milhar
+    v = v.replace(",", ".");    // troca vírgula por ponto decimal
+  }
+  // Se só tiver vírgula -> formato brasileiro simples (199,99)
+  else if (v.includes(",")) {
+    v = v.replace(",", ".");
+  }
+
+  const num = parseFloat(v);
+  return isNaN(num) ? 0 : num;
+}
+
 export function aplicaFiltro(imoveis: ImovelFront[], filtros: Filtros): ImovelFront[] {
-  let filtrados = imoveis;
+  // 🔹 Cria propriedades auxiliares numéricas (não sobrescreve os campos originais)
+  let filtrados = imoveis.map(i => ({
+    ...i,
+    _valorNum: parseNumero(i.valor),
+    _metrosNum: parseNumero(i.metrosQuadrados)
+  }));
 
   // Texto exato (normalizado)
   if (filtros.tipo?.trim()) {
@@ -49,15 +75,15 @@ export function aplicaFiltro(imoveis: ImovelFront[], filtros: Filtros): ImovelFr
     );
   }
 
-  // Numéricos
+  // Numéricos (usando auxiliares)
   const { valorMin, valorMax, quartos, banheiros, vagas, metrosMin, metrosMax, lancamento, tags } = filtros;
-  if (valorMin !== undefined) filtrados = filtrados.filter(i => i.valor >= valorMin);
-  if (valorMax !== undefined) filtrados = filtrados.filter(i => i.valor <= valorMax);
+  if (valorMin !== undefined) filtrados = filtrados.filter(i => i._valorNum >= valorMin);
+  if (valorMax !== undefined) filtrados = filtrados.filter(i => i._valorNum <= valorMax);
   if (quartos !== undefined) filtrados = filtrados.filter(i => i.quartos >= quartos);
   if (banheiros !== undefined) filtrados = filtrados.filter(i => i.banheiros >= banheiros);
   if (vagas !== undefined) filtrados = filtrados.filter(i => i.vagas >= vagas);
-  if (metrosMin !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados >= metrosMin);
-  if (metrosMax !== undefined) filtrados = filtrados.filter(i => i.metrosQuadrados <= metrosMax);
+  if (metrosMin !== undefined) filtrados = filtrados.filter(i => i._metrosNum >= metrosMin);
+  if (metrosMax !== undefined) filtrados = filtrados.filter(i => i._metrosNum <= metrosMax);
 
   // Booleano
   if (lancamento) filtrados = filtrados.filter(i => i.lancamento);
@@ -71,5 +97,6 @@ export function aplicaFiltro(imoveis: ImovelFront[], filtros: Filtros): ImovelFr
     );
   }
 
-  return filtrados;
+  // 🔹 Remove os auxiliares antes de retornar
+  return filtrados.map(({ _valorNum, _metrosNum, ...rest }) => rest);
 }

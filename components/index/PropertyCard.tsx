@@ -68,7 +68,7 @@ export default function PropertyCard({
                     </span>
                 )}
 
-                <p className={styles.price}>{price} R$</p>
+                <p className={styles.price}>{price}</p>
             </div>
             <div className={styles.info}>
                 <div className={styles.titleLocation}>

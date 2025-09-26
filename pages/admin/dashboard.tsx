@@ -58,9 +58,6 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
 
   }
 
-
-  useEffect(() => { console.log(selectedFiles, capaFile); console.log(imoveis) }, [selectedFiles, capaFile]);
-
   function handleTagChange(tagId: string) {
     setSelectedTags((prev) =>
       prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]
@@ -104,8 +101,6 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
 
     // ------------------ Atualiza mídias no modo edição ------------------
 
-    console.log(capaFile); ///
-
     // Upload da capa
     if (capaFile) {
       // Se estiver editando, deleta a capa antiga antes de subir a nov
@@ -119,10 +114,8 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
           });
         }
       }
-      console.log('CAIU AQUI');
       const capaUpload = await upload([capaFile]);
       if (capaUpload.length > 0) {
-        console.log(capaUpload)
         await fetch("/api/midias", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -157,14 +150,10 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
         .filter(m => m.tipo !== "capa")
         .map(m => m.url);
 
-      console.log('Galeria existente:', galeriaExistente);
-
       // 3️⃣ Upload de novas mídias da galeria
       const novasMidiasFiles = selectedFiles.filter(file =>
         !galeriaExistente.some(url => url.endsWith(file.name))
       );
-
-      console.log('Novas mídias selecionadas:', novasMidiasFiles);
 
       if (novasMidiasFiles.length > 0) {
         const uploads = await upload(novasMidiasFiles);
@@ -233,7 +222,6 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
     setSelectedFiles((prev) =>
       prev.filter((f) => URL.createObjectURL(f) !== url)
     );
-    console.log(previewUrls); ///
   }
 
   const aplicarFiltros = useCallback(
@@ -328,7 +316,7 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
               lancamento={imovel.lancamento}
               busca
               image={imovel.midias?.find((m) => m.tipo === "capa")?.url || ""}
-              price={imovel.valor}
+              price={`R$ ${imovel.valor}`}
               title={imovel.nome}
               location={`${imovel.endereco} / ${imovel.cidade} / ${imovel.estado}`}
               quartos={imovel.quartos}

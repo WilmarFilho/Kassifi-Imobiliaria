@@ -8,14 +8,14 @@ export interface ImovelFront {
   tipo: string;
   nome: string;
   lancamento: boolean;
-  valor: number;
+  valor: string;
   cidade: string;
   estado: string;
   endereco: string;
   quartos: number;
   banheiros: number;
   vagas: number;
-  metrosQuadrados: number;
+  metrosQuadrados: string;
   descricao: string;
   criadoEm: string;
   tags: string[];
