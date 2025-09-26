@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import Carousel from '@/components/index/Carousel';
@@ -42,9 +43,8 @@ export default function Imovel({ imoveisSerialized }: Props) {
   // Abre o lightbox filtrando mídias
   function openLightbox(tipo: 'fotos' | 'videos') {
     if (imovel) {
-      console.log(imovel.midias);
       const filtradas = imovel.midias.filter((m) =>
-        tipo === "fotos" ? m.tipo === "foto" || m.tipo === "capa" : m.tipo === "video"
+        tipo === "fotos" ? m.tipo === "imagem" || m.tipo === "capa" : m.tipo === "video"
       );
       setLightboxMidias(filtradas);
       setLightboxIndex(0);
@@ -61,28 +61,24 @@ export default function Imovel({ imoveisSerialized }: Props) {
         {imovel.midias.filter((m) => m.tipo !== "capa").length >= 6 ? (
           <>
             <div className={styles.capa}>
-              <Image
-                src={imovel.midias.find((m) => m.tipo === "capa")?.url || "/assets/fallback.jpg"}
-                alt={imovel.nome}
-                width={800}
-                height={500}
-                className={styles.imgCapa}
+              <img
+              src={imovel.midias.find((m) => m.tipo === "capa")?.url || "/assets/fallback.jpg"}
+              alt={imovel.nome}
+              className={styles.imgCapa}
               />
             </div>
             <div className={styles.galeria}>
               {imovel.midias
-                .filter((m) => m.tipo !== "capa")
+                .filter((m) => m.tipo !== "capa" && m.tipo !== "video")
                 .slice(0, 6)
                 .map((m, idx) => (
-                  <div key={idx} className={styles.thumbWrapper}>
-                    <Image
+                    <div key={idx} className={styles.thumbWrapper}>
+                    <img
                       src={m.url}
                       alt={`midia-${idx}`}
-                      width={250}
-                      height={150}
                       className={styles.imgThumb}
                     />
-                  </div>
+                    </div>
                 ))}
             </div>
           </>

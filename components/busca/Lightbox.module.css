@@ -64,6 +64,38 @@
   right: 20px;
 }
 
+.image {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  z-index: 10;
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+
+.image.loaded {
+  opacity: 1;
+}
+
+.loading {
+  opacity: 0;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

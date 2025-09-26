@@ -1,5 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import styles from "./Lightbox.module.css";
 
 type Midia = {
@@ -16,7 +16,9 @@ type Props = {
 
 export default function Lightbox({ midias, initialIndex, onClose, isOpen }: Props) {
   const [current, setCurrent] = useState(initialIndex);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Ajusta o índice ao abrir
   useEffect(() => {
     if (isOpen) {
       if (initialIndex < 0 || initialIndex >= midias.length) {
@@ -27,6 +29,7 @@ export default function Lightbox({ midias, initialIndex, onClose, isOpen }: Prop
     }
   }, [isOpen, initialIndex, midias.length]);
 
+  // Keyboard navigation
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -40,6 +43,21 @@ export default function Lightbox({ midias, initialIndex, onClose, isOpen }: Prop
   const prev = () => setCurrent((c) => (c === 0 ? midias.length - 1 : c - 1));
   const next = () => setCurrent((c) => (c === midias.length - 1 ? 0 : c + 1));
 
+  // Pré-carregar imagem anterior e próxima
+  useEffect(() => {
+    const preload = [
+      midias[(current + 1) % midias.length],
+      midias[(current - 1 + midias.length) % midias.length]
+    ];
+    preload.forEach((m) => {
+      if (m?.tipo === "foto") {
+        const img = new window.Image() as HTMLImageElement; // <- aqui
+        img.src = m.url;
+      }
+    });
+  }, [current, midias]);
+
+
   if (!isOpen || midias.length === 0) return null;
 
   const midia = midias[current];
@@ -47,33 +65,33 @@ export default function Lightbox({ midias, initialIndex, onClose, isOpen }: Prop
 
   return (
     <div className={styles.overlay}>
-      {/* Botão fechar */}
-      <button onClick={onClose} className={styles.closeButton}>
-        ✕
-      </button>
+      <button onClick={onClose} className={styles.closeButton}>✕</button>
 
-      {/* Conteúdo */}
       <div className={styles.content}>
         {midia.tipo === "video" ? (
           <video src={midia.url} controls className={styles.video} />
         ) : (
-          <Image
-            src={midia.url}
-            alt="midia"
-            width={1000}
-            height={700}
-            className={styles.image}
-          />
+          <>
+            {isLoading && <div className={styles.loader}></div>}
+            <img
+              key={midia.url}
+              src={midia.url}
+              alt="midia"
+              style={{
+                width: "100%",
+                height: "auto",
+                maxHeight: "90vh",
+                objectFit: "contain",
+                display: isLoading ? "none" : "block"
+              }}
+              onLoad={() => setIsLoading(false)}
+            />
+          </>
         )}
       </div>
 
-      {/* Setas */}
-      <button onClick={prev} className={`${styles.arrow} ${styles.arrowLeft}`}>
-        &lt;
-      </button>
-      <button onClick={next} className={`${styles.arrow} ${styles.arrowRight}`}>
-        &gt;
-      </button>
+      <button onClick={prev} className={`${styles.arrow} ${styles.arrowLeft}`}>&lt;</button>
+      <button onClick={next} className={`${styles.arrow} ${styles.arrowRight}`}>&gt;</button>
     </div>
   );
 }
