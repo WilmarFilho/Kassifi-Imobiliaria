@@ -62,9 +62,9 @@ export default function Imovel({ imoveisSerialized }: Props) {
           <>
             <div className={styles.capa}>
               <img
-              src={imovel.midias.find((m) => m.tipo === "capa")?.url || "/assets/fallback.jpg"}
-              alt={imovel.nome}
-              className={styles.imgCapa}
+                src={imovel.midias.find((m) => m.tipo === "capa")?.url || "/assets/fallback.jpg"}
+                alt={imovel.nome}
+                className={styles.imgCapa}
               />
             </div>
             <div className={styles.galeria}>
@@ -72,13 +72,13 @@ export default function Imovel({ imoveisSerialized }: Props) {
                 .filter((m) => m.tipo !== "capa" && m.tipo !== "video")
                 .slice(0, 6)
                 .map((m, idx) => (
-                    <div key={idx} className={styles.thumbWrapper}>
+                  <div key={idx} className={styles.thumbWrapper}>
                     <img
                       src={m.url}
                       alt={`midia-${idx}`}
                       className={styles.imgThumb}
                     />
-                    </div>
+                  </div>
                 ))}
             </div>
           </>
@@ -269,7 +269,14 @@ export const getServerSideProps: GetServerSideProps = async () => {
     descricao: i.descricao,
     criadoEm: i.criadoEm.toISOString(),
     tags: i.tags.map((t) => t.tag.nome),
-    midias: i.midias.map((m) => ({ url: m.url, tipo: m.tipo })),
+    midias: i.midias
+      .sort((a, b) => a.ordem - b.ordem)
+      .map((m) => ({
+        id: m.id,
+        url: m.url,
+        tipo: m.tipo,
+        ordem: m.ordem,
+      })),
   }));
 
   const countsByType: Record<string, number> = {};

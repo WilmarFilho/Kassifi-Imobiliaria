@@ -1,6 +1,8 @@
 export interface MidiaFront {
   url: string;
   tipo: string;
+  ordem: number;
+  id: string;
 }
 
 export interface ImovelFront {

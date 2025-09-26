@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `midia` ADD COLUMN `ordem` INTEGER NOT NULL DEFAULT 0;

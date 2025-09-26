@@ -10,6 +10,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: "Não autorizado" });
     }
 
+    if (req.method === "PATCH") {
+      const { imovelId, ordem } = req.body;
+
+      if (!imovelId || !ordem || !Array.isArray(ordem)) {
+        return res.status(400).json({ error: "Campos obrigatórios: imovelId, ordem" });
+      }
+
+      try {
+        await Promise.all(
+          ordem.map((item: { id: string; ordem: number }) =>
+            prisma.midia.update({
+              where: { id: item.id },
+              data: { ordem: item.ordem }, 
+
+            })
+          )
+        );
+        return res.status(200).json({ success: true });
+      } catch (error: unknown) {
+        console.error("Erro API /midias PATCH:", error);
+        return res.status(500).json({ error: "Erro no servidor" });
+      }
+    }
+
+    
     if (req.method === "POST") {
       const { imovelId, url, tipo } = req.body;
       if (!imovelId || !url || !tipo) {
@@ -97,3 +122,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
+

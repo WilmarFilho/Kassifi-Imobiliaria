@@ -36,10 +36,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         descricao: i.descricao,
         criadoEm: i.criadoEm.toISOString(),
         tags: i.tags.map((t) => t.tag.id),
-        midias: i.midias.map((m) => ({
-          url: m.url,
-          tipo: m.tipo,
-        })),
+        midias: i.midias
+          .sort((a, b) => a.ordem - b.ordem)
+          .map((m) => ({
+            id: m.id,
+            url: m.url,
+            tipo: m.tipo,
+            ordem: m.ordem,
+          })),
       }));
 
       return res.status(200).json(imoveisSerialized);
@@ -95,18 +99,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ...parsedData,
           tags: parsedData.tags?.length
             ? {
-                create: parsedData.tags.map((tagId: string) => ({
-                  tag: { connect: { id: tagId } },
-                })),
-              }
+              create: parsedData.tags.map((tagId: string) => ({
+                tag: { connect: { id: tagId } },
+              })),
+            }
             : undefined,
           midias: parsedData.midias?.length
             ? {
-                create: parsedData.midias.map((m: { url: string; tipo: string }) => ({
-                  url: m.url,
-                  tipo: m.tipo,
-                })),
-              }
+              create: parsedData.midias.map((m: { url: string; tipo: string }) => ({
+                url: m.url,
+                tipo: m.tipo,
+              })),
+            }
             : undefined,
         },
         include: { tags: { include: { tag: true } }, midias: true },

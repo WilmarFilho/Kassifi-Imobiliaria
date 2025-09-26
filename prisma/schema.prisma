@@ -54,6 +54,7 @@ model Midia {
   id       String @id @default(uuid())
   tipo     String // "foto" ou "video"
   url      String
+  ordem    Int    @default(0) // novo campo para ordenação
   imovel   Imovel @relation(fields: [imovelId], references: [id])
   imovelId String
   criadoEm DateTime @default(now())

@@ -11,6 +11,9 @@ import Header from "@/components/Header";
 import FiltroImoveis from "@/components/busca/Filtro";
 import PropertyCard from "@/components/index/PropertyCard";
 import { aplicaFiltro } from "@/utils/aplicaFiltro";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import type { DropResult } from "@hello-pangea/dnd";
+
 
 interface DashboardProps {
   imoveis: ImovelFront[];
@@ -37,6 +40,16 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
   const { upload, loading: uploadingMidias } = useUploadMidias();
 
   // ------------------ Funções ------------------
+
+  function handleDragEnd(result: DropResult) {
+    if (!result.destination) return; // arrastou fora
+
+    const newPreviewUrls = Array.from(previewUrls);
+    const [removed] = newPreviewUrls.splice(result.source.index, 1);
+    newPreviewUrls.splice(result.destination.index, 0, removed);
+
+    setPreviewUrls(newPreviewUrls);
+  }
 
   async function fetchImoveis() {
     const res = await fetch("/api/imoveis");
@@ -173,6 +186,24 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
         );
       }
 
+
+      const ordem = previewUrls
+        .map((url, index) => {
+          if (!editImovel) return null;
+          const midia = (editImovel as ImovelFront).midias.find((m) => m.url === url);
+          return { id: midia?.id, ordem: index + 1 };
+        })
+        .filter(Boolean);
+
+      console.log(ordem)
+
+      await fetch("/api/midias", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imovelId: savedImovel.id, ordem }),
+      });
+
+
     } else {
       // ------------------ Criação de novo imóvel ------------------
 
@@ -193,6 +224,10 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
           )
         );
       }
+
+
+
+
 
     }
 
@@ -596,22 +631,93 @@ export default function Dashboard({ imoveis: initialImoveis, tags }: DashboardPr
                 </div>
 
                 <div className={styles.previewContainer}>
-                  {previewUrls.map((url, idx) => {
-                    const file = selectedFiles[idx];
-                    const isVideo = file?.type.startsWith("video/") || url.endsWith(".mp4");
-                    return (
-                      <div key={idx} className={styles.previewItem}>
-                        {isVideo ? (
-                          <video src={url} controls width={100} />
-                        ) : (
-                          <Image src={url} alt={`preview-${idx}`} fill priority className={styles.mediaImovel} />
+                  {editImovel ? (
+                    <DragDropContext onDragEnd={handleDragEnd}>
+                      <Droppable droppableId="galeria" direction="horizontal">
+                        {(provided) => (
+                          <div
+                            className={styles.previewContainer}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                          >
+                            {previewUrls.map((url, idx) => {
+                              const file = selectedFiles[idx];
+                              const isVideo = file?.type.startsWith("video/") || url.endsWith(".mp4");
+
+                              return (
+                                <Draggable key={url} draggableId={url} index={idx}>
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className={styles.previewItem}
+                                    >
+                                      {isVideo ? (
+                                        <video src={url} controls width={100} />
+                                      ) : (
+                                        <Image
+                                          src={url}
+                                          alt={`preview-${idx}`}
+                                          fill
+                                          priority
+                                          className={styles.mediaImovel}
+                                        />
+                                      )}
+                                      <button
+                                        type="button"
+                                        className={styles.closeButtonMedia}
+                                        onClick={() => excluirMidia(url)}
+                                      >
+                                        <Image
+                                          src="/assets/x-circle.svg"
+                                          alt="x-circle-icon"
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </button>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              );
+                            })}
+                            {provided.placeholder}
+                          </div>
                         )}
-                        <button type="button" className={styles.closeButtonMedia} onClick={() => excluirMidia(url)}>
-                          <Image src="/assets/x-circle.svg" alt="x-circle-icon" width={32} height={32} />
-                        </button>
-                      </div>
-                    );
-                  })}
+                      </Droppable>
+                    </DragDropContext>
+                  ) : (
+                    // modo adição = galeria normal
+                    <div className={styles.previewContainer}>
+                      {previewUrls.map((url, idx) => {
+                        const file = selectedFiles[idx];
+                        const isVideo = file?.type.startsWith("video/") || url.endsWith(".mp4");
+                        return (
+                          <div key={idx} className={styles.previewItem}>
+                            {isVideo ? (
+                              <video src={url} controls width={100} />
+                            ) : (
+                              <Image
+                                src={url}
+                                alt={`preview-${idx}`}
+                                fill
+                                priority
+                                className={styles.mediaImovel}
+                              />
+                            )}
+                            <button
+                              type="button"
+                              className={styles.closeButtonMedia}
+                              onClick={() => excluirMidia(url)}
+                            >
+                              <Image src="/assets/x-circle.svg" alt="x-circle-icon" width={32} height={32} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                 </div>
 
                 <div className={styles.actions}>
@@ -657,9 +763,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     descricao: i.descricao,
     criadoEm: i.criadoEm.toISOString(),
     tags: i.tags.map((t) => t.tag.id),
-    midias: i.midias.map((m) => ({ url: m.url, tipo: m.tipo })),
+    midias: i.midias
+      .sort((a, b) => a.ordem - b.ordem)
+      .map((m) => ({
+        id: m.id,
+        url: m.url,
+        tipo: m.tipo,
+        ordem: m.ordem,
+      })),
   }));
 
   return { props: { session, imoveis: imoveisSerialized, tags } };
 };
+
+
+
 
